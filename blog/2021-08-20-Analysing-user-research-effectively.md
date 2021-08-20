@@ -70,7 +70,7 @@ For example, when conducting research on an onboarding process, we observed a tr
 
 ![](/images/blogposts/analysing-user-research/Blog_Example.png)
 
-***Adding button icons** (right) to onboarding instructions proved more effective than **shortening instruction copy** (left)*
+**Adding button icons** (right) to onboarding instructions proved more effective than **shortening instruction copy** (left)
 
 With a more holistic perspective on how the test session went, the research team can then log the consolidated research notes for that session, highlighting these key insights. Some useful resources used by us at Holmusk are:
 
