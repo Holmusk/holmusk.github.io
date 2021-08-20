@@ -38,6 +38,8 @@ In the `.md` file you should add next info in the following format:
 ```
 ---
 title: Some really meaningful title that will appear at the page
+author: Some cool person's name
+github: That person's github account, if they have one
 description: Some short description
 tags: haskell, stack, cabal, build-tools, tutorial
 ---
