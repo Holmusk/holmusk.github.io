@@ -1,5 +1,7 @@
 ---
 title: Exploring Template Haskell
+author: Daniela Moura
+github: merrymeerkat
 description: Explain how the GHC extension "Template Haskell" works, what the benefits/disadvantages of using it are, and how it can be used in production code.
 tags: template haskell, metaprogramming, code embedding, algebraic data types
 ---
