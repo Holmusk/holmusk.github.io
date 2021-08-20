@@ -57,7 +57,7 @@ To understand how Template Haskell works, we first need to have a clear idea of 
     - Types are the 'labels' or 'categories' of terms.
         - Some examples are `Int`, `Bool -> Int`, `Monad m => a -> b -> m (c,d)`, etc.
 
-    ![Exploring%20Template%20Haskell%20aab27ba29c0c4bde947868bfd3339c56/fibonnaci_diagram1024_1.jpg](Exploring%20Template%20Haskell%20aab27ba29c0c4bde947868bfd3339c56/fibonnaci_diagram1024_1.jpg)
+![](/images/blogposts/template-haskell/fibonacci_diagram.png)
 
     It turns out that this simple classification allows us to express almost anything in Haskell and, by extension, Template Haskell! In fact, we can write the TH version of any ‘normal’ Haskell code by simply converting it into a TH abstract syntax tree, which is done by using the constructors of the Dec, Exp, Pat and Type data types defined in the [template-haskell](https://hackage.haskell.org/package/template-haskell) support library.
 
