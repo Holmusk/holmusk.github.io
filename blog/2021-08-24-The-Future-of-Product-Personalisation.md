@@ -46,7 +46,6 @@ Experiential personalisation (in the product experience), in essence, takes on t
 1. **Lumen** 
 
 [https://www.youtube.com/watch?v=X8IBgyAMgn4&t=60s](https://www.youtube.com/watch?v=X8IBgyAMgn4&t=60s)
-
 (Source: [https://www.lumen.me/](https://www.lumen.me/))
 
 Lumen uses a patented breathalyser that measures an individual's metabolism via a single breath. Their scientifically-validated technology then translates the measurements into insights that a user can utilise to understand their well-being. But that's not all — Lumen markets itself primarily as a personalised nutrition service. Their introduction video (linked above) ends with the statement, "That's why Lumen is nutrition designed for you."
@@ -111,7 +110,7 @@ The value of personalisation and the consumer demand for it seems to be growing 
 
 ---
 
-## References
+# References
 
 1. Anderson, C., 2003. The psychology of doing nothing: Forms of decision avoidance result from reason and emotion. Psychological Bulletin, 129(1), pp.139-167.
 2. Baier, M., 2020. Personalized Customer Journeys and Technology Trends. [online] The Tilt. Available at: <https://www.thetilt.com/content/technology-personalized-customer-journeys> [Accessed 23 July 2021].
