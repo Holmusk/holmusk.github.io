@@ -2,7 +2,7 @@
 title: The Future of Product: Personalisation
 author: Chelsea Ho
 description: How are technological advances shifting the market towards personalised products and customised user journeys? How does decision fatigue relate to the increasing demand for product personalisation? Brief look at various product offerings that already now base their USPs on user personalisation (Function Inc, Care/of, etc). 
-tags: product personalisation
+tags: product personalisation, customer behavior, privacy
 ---
 
 If you have ever used Facebook, shopped on Amazon, or watched shows on Netflix, you have experienced personalisation. According to Wikipedia's definition, "Personalisation (broadly known as customisation) consists of tailoring a service or a product to accommodate specific individuals, sometimes tied to groups or segments of individuals". Today, this customisation is integral in most of the products and services we use in our daily lives. Beyond its utility in targeted advertising, the concept of personalisation has grown to encompass much more — sometimes, the entire user experience. More than ever, we now see a rise in products and services that explicitly offer user customisation, and brands that are centred on personalisation itself. 
