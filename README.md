@@ -23,7 +23,7 @@ Blog for Holmusk Tech Team
 The workflow is easy:
 
 1. Make sure that you are on the latest develop branch
-2. Create a new branch from develop, implement desired changes and open a pull request
+2. Create a new branch from develop, implement desired changes and open a pull request targetting develop branch
 3. Deploy the updated web page content with the following command:
    ```
    ./scripts/deploy.sh "Some meaningful message"
@@ -38,6 +38,8 @@ In the `.md` file you should add next info in the following format:
 ```
 ---
 title: Some really meaningful title that will appear at the page
+author: Some cool person's name
+github: That person's github account, if they have one
 description: Some short description
 tags: haskell, stack, cabal, build-tools, tutorial
 ---
@@ -73,4 +75,5 @@ inflating: /tmp/pr/word/media/image3.jpg
 
 #### Notion
 
-You can export the blogpost as `md`.
+You can export the blogpost as `md`. 
+Navigate to blog post's page in Notion, click the ellipsis menu in the top-right corner and select 'Export'.
