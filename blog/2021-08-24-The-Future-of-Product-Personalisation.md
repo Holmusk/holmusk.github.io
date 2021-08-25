@@ -1,5 +1,5 @@
 ---
-title: The Future of Product: Personalisation
+title: The Future of Product Personalisation
 author: Chelsea Ho
 description: How are technological advances shifting the market towards personalised products and customised user journeys? How does decision fatigue relate to the increasing demand for product personalisation? Brief look at various product offerings that already now base their USPs on user personalisation (Function Inc, Care/of, etc). 
 tags: product personalisation, customer behavior, privacy
