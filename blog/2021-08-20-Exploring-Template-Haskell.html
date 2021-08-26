@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Holmusk Tech Blog">
+  <meta name="keywords" content="Haskell, Elm, Dart, Functional progarmming, FP">
+  <meta name="author" content="Holmusk" />
+  <title>Holmusk | Exploring Template Haskell</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="../css/main.css">
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8=" crossorigin="anonymous">
+  </script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg fixed-top" id="mainNav">
+    <div class="container">
+        <a class="navbar-brand" href="../index.html">
+            <img src="../images/holmusk_product_blog.svg" alt="Holmusk Tech Blog">
+        </a>
+        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+          Menu
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="../index.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../blog.html">Blog Posts</a>
+            </li>
+          </ul>
+        </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+ <div class="container" id="page-content">
+   <div class="row">
+     <div class="container">
+    <div class="row">
+        <div class="col-lg-10 col-md-12 mx-auto">
+            <h1 class="title">Exploring Template Haskell</h1>
+            <div class="post-context">
+              <div>
+                <span class="author"> Daniela Moura </span>
+                
+                    <span><a class="github" href="https://github.com/merrymeerkat/">@merrymeerkat</a></span>
+                
+              </div>
+
+              <div class="date">August 20, 2021</div>
+            </div>
+            <div class="tag-list">
+              
+              <span><a class="tag" href="../tags/template haskell.html">template haskell</a></span>
+              
+              <span><a class="tag" href="../tags/metaprogramming.html">metaprogramming</a></span>
+              
+              <span><a class="tag" href="../tags/code embedding.html">code embedding</a></span>
+              
+              <span><a class="tag" href="../tags/algebraic data types.html">algebraic data types</a></span>
+              
+            </div>
+        </div>
+    </div>
+
+    <article>
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-10 col-md-12 mx-auto">
+            <div class="toc"><ul>
+<li><a href="#what-is-template-haskell">What is Template Haskell?</a></li>
+<li><a href="#how-does-template-haskell-work">How does Template Haskell work?</a></li>
+<li><a href="#getting-your-hands-dirty">Getting your hands dirty</a></li>
+<li><a href="#step-1-dip-your-toes">Step 1: Dip your toes</a><ul>
+<li><a href="#that-seems-like-a-lot-of-work">That seems like a lot of work!</a></li>
+<li><a href="#quotations-and-quasi-quotes">Quotations and quasi-quotes</a></li>
+<li><a href="#splicing">Splicing</a></li>
+</ul></li>
+<li><a href="#step-2-dive-in">Step 2: Dive in!</a><ul>
+<li><a href="#generating-classes">Generating Classes</a></li>
+<li><a href="#visualising-code--ddump-splices">Visualising code: <code>-ddump-splices</code></a></li>
+<li><a href="#staging-restrictions">Staging restrictions</a></li>
+<li><a href="#generating-instances">Generating Instances</a></li>
+</ul></li>
+<li><a href="#back-to-where-we-started">Back to where we started</a></li>
+<li><a href="#setting-sail-some-key-takeaways">Setting sail: some key takeaways</a></li>
+<li><a href="#notes">Notes</a></li>
+<li><a href="#references">References</a></li>
+</ul></div>
+            <p>When going through Haskell modules that deal with databases, it is not terribly difficult to stumble upon code that is constructed more or less this way:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1"></a><span class="ot">getInfo ::</span> <span class="dt">SomeType</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">SomeOtherType</span>)</span>
+<span id="cb1-2"><a href="#cb1-2"></a>getInfo input <span class="ot">=</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a>    queryNamed [sql|</span>
+<span id="cb1-4"><a href="#cb1-4"></a>		    SELECT t.some_nice_info</span>
+<span id="cb1-5"><a href="#cb1-5"></a>		    FROM this_table t</span>
+<span id="cb1-6"><a href="#cb1-6"></a>		    WHERE t.id IN ?input</span>
+<span id="cb1-7"><a href="#cb1-7"></a>		    |] [“input” <span class="op">=?</span> input]</span></code></pre></div>
+<p>Just like that, we seamlessly embed SQL code in the middle of a Haskell function!</p>
+<p>This <code>[sql| … |]</code> construction from the <a href="https://hackage.haskell.org/package/postgresql-simple-0.6.4/docs/Database-PostgreSQL-Simple.html">postgresql-simple library</a> is used rather frequently in the backend of Holmusk products, and its conciseness has surely saved many typing-hours to date. But what exactly is this square bracket constructor, and what kind of magic does it use to allow for insertion of SQL code within Haskell?</p>
+<p>This embedding of external languages into Haskell code is done, in part, through the use of Template Haskell, a technique that allows for the algorithmic construction of programs at compile-time. In other words, Template Haskell supports meta programming: it allows you to write programs that, in turn, construct other programs during compilation.</p>
+<p>In this blog post, we will give a beginner-friendly introduction to Template Haskell and work through some interesting examples of how it can be used. The code samples in this article use template-haskell version 2.16.0.0, which is one of the boot libraries that ship with GHC 8.10.</p>
+<h1 id="what-is-template-haskell">What is Template Haskell?</h1>
+<p>Template Haskell, or TH, is a GHC extension to Haskell that allows users to perform compile-time meta-programming. This is done through the construction of abstract syntax trees, which are then transformed into the corresponding regular (or ‘concrete’) Haskell code during compilation.</p>
+<p>Since its conception nearly two decades ago [1], Template Haskell has enabled Haskellers to more easily manipulate their programs. Nowadays, TH is mostly used to:</p>
+<ul>
+<li>Write different programs all at once (for example, several instances for a class) by means of a single algorithmic description, thus reducing ‘boilerplate’ code</li>
+<li>Embed files or external code into Haskell modules</li>
+</ul>
+<p>In Template Haskell, in contrast to meta-programming in C++, the functions that execute at compile-time are written in the same language as the functions that execute at run time, that is, Haskell. This means that you can directly apply your Haskell skills and use standard libraries when writing TH programs.</p>
+<h1 id="how-does-template-haskell-work">How does Template Haskell work?</h1>
+<p>To understand how Template Haskell works, we first need to have a clear idea of how programs are represented in Haskell. Haskell syntax can be roughly divided into four categories [2]:</p>
+<ul>
+<li><strong>Expressions</strong>
+<ul>
+<li>These are the most common, and represent anything that GHC can evaluate: variables, literals, lambdas, function applications, if-then-else expressions, and so on.
+<ul>
+<li>Generally, this corresponds to the right-hand-side of function definitions.</li>
+</ul></li>
+</ul></li>
+<li><strong>Declarations</strong>
+<ul>
+<li>Declarations are simply statements that introduce something new. Some examples are:
+<ul>
+<li>function declarations: <code>f x = x + 1</code> introduces a meaning to the variable <code>f</code>.</li>
+<li>class declarations: <code>class Eq a where ...</code>,</li>
+<li>instance declarations: <code>instance Eq Int ...</code> declares that <code>Int</code> is a member of the type class <code>Eq</code>,</li>
+<li>type declarations: <code>data Bool = False | True</code>, and</li>
+<li>the statements that come in a <code>where ...</code> clause.</li>
+</ul></li>
+</ul></li>
+<li><strong>Patterns</strong>
+<ul>
+<li>Patterns are used to ‘match’ expressions, and they are widely used in Haskell functions. In function declarations, they are placed between the function name and the <code>=</code> sign.
+<ul>
+<li>For example, in <code>f 4 = 5</code>, the literal <code>4</code> is a pattern against which the argument passed to <code>f</code> will be matched (successfully or not).</li>
+<li>Constructors can also be patterns: see <code>f (Just val) = val</code> or <code>f Nothing = 0</code>.</li>
+</ul></li>
+</ul></li>
+<li><strong>Types</strong>
+<ul>
+<li>Types are the ‘labels’ or ‘categories’ of terms.
+<ul>
+<li>Some examples are <code>Int</code>, <code>Bool -&gt; Int</code>, <code>Monad m =&gt; a -&gt; b -&gt; m (c,d)</code>, etc.</li>
+</ul></li>
+</ul></li>
+</ul>
+<p><img src="../images/blogposts/template-haskell/fibonnaci_diagram.jpg" /></p>
+<p>It turns out that this simple classification allows us to express almost anything in Haskell and, by extension, Template Haskell! In fact, we can write the TH version of any ‘normal’ Haskell code by simply converting it into a TH abstract syntax tree, which is done by using the constructors of the Dec, Exp, Pat and Type data types defined in the <a href="https://hackage.haskell.org/package/template-haskell">template-haskell</a> support library.</p>
+<h1 id="getting-your-hands-dirty">Getting your hands dirty</h1>
+<p>Now that we have learned about the building blocks of Template Haskell, we can begin writing some TH programs. We recommend that you start up a GHCi session to work through the following examples alongside us.</p>
+<p>Before getting started, make sure you import the template-haskell package as well as add the TH language extension as follows:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1"></a>λ<span class="op">&gt;</span> <span class="kw">import</span> <span class="dt">Language.Haskell.TH</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a>λ<span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span><span class="dt">XTemplateHaskell</span></span></code></pre></div>
+<h1 id="step-1-dip-your-toes">Step 1: Dip your toes</h1>
+<p>We start with a simple example. Suppose you want to write a function that adds 4 to a given number. In our familiar Haskell, you may write the following lambda expression:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1"></a>\a <span class="ot">-&gt;</span> a <span class="op">+</span> <span class="dv">4</span></span></code></pre></div>
+<p>In TH, we would write something like:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1"></a>add4 <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>  x <span class="ot">&lt;-</span> newName <span class="st">&quot;x&quot;</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a>  <span class="fu">return</span> <span class="op">$</span> <span class="dt">LamE</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a>    [<span class="dt">VarP</span> x]</span>
+<span id="cb4-5"><a href="#cb4-5"></a>    (<span class="dt">InfixE</span> (<span class="dt">Just</span> (<span class="dt">VarE</span> x)) (<span class="dt">VarE</span> '(<span class="op">+</span>)) (<span class="dt">Just</span> (<span class="dt">LitE</span> (<span class="dt">IntegerL</span> <span class="dv">4</span>))))</span></code></pre></div>
+<p>Let’s unpack this function together. The first statement of the <code>do</code> block is</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1"></a>x <span class="ot">&lt;-</span> newName <span class="st">&quot;x&quot;</span></span></code></pre></div>
+<p>To prevent inadvertent capture of top-level variables, we need a way of generating fresh names in our TH programs. This is conveniently done with the function <code>newName :: String -&gt; Q Name</code> (more on this <code>Q</code> monad soon).</p>
+<p>We can then move on to the return statement of our <code>add4</code> function. This is simply a TH <code>LamE</code> expression (the equivalent of a Haskell lambda), which itself encapsulates more expressions. We can represent this structure as a tree:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1"></a>            <span class="dt">LamE</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a>            <span class="op">/</span>   \</span>
+<span id="cb6-3"><a href="#cb6-3"></a>          []    <span class="dt">InfixE</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a>        <span class="op">/</span>     <span class="op">/</span>   <span class="op">|</span>   \</span>
+<span id="cb6-5"><a href="#cb6-5"></a>      <span class="dt">VarP</span>   <span class="dt">Just</span>  <span class="dt">VarE</span>  <span class="dt">Just</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a>      <span class="op">/</span>      <span class="op">/</span>      <span class="op">|</span>     \</span>
+<span id="cb6-7"><a href="#cb6-7"></a>    x     <span class="dt">VarE</span>   ‘(<span class="op">+</span>)    <span class="dt">LitE</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a>            <span class="op">/</span>               \</span>
+<span id="cb6-9"><a href="#cb6-9"></a>          x              <span class="dt">IntegerL</span> </span>
+<span id="cb6-10"><a href="#cb6-10"></a>                              \</span>
+<span id="cb6-11"><a href="#cb6-11"></a>                              <span class="dv">4</span></span></code></pre></div>
+<p>Let us first take a look at the left subtree of <code>LamE</code>:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1"></a>          [] </span>
+<span id="cb7-2"><a href="#cb7-2"></a>          <span class="op">/</span>    </span>
+<span id="cb7-3"><a href="#cb7-3"></a>      <span class="dt">VarP</span>  </span>
+<span id="cb7-4"><a href="#cb7-4"></a>      <span class="op">/</span>     </span>
+<span id="cb7-5"><a href="#cb7-5"></a>      x</span></code></pre></div>
+<p>This is essentially what in a ‘normal’ Haskell lambda would come before the <code>-&gt;</code>. In other words, the left subtree contains the patterns that the inputs to our lambda will be matched against. Our <code>add4</code> function takes in only one argument, so our list has a single element: <code>VarP x</code>, indicating that any argument passed to <code>add4</code> will be bound to the variable name <code>x</code>.</p>
+<p>Now, we can turn our attention to the right subtree of the <code>LamE</code> node:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1"></a>                <span class="dt">InfixE</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a>                <span class="op">/</span>  <span class="op">|</span>   \</span>
+<span id="cb8-3"><a href="#cb8-3"></a>            <span class="dt">Just</span>  <span class="dt">VarE</span>  <span class="dt">Just</span></span>
+<span id="cb8-4"><a href="#cb8-4"></a>              <span class="op">/</span>    <span class="op">|</span>     \</span>
+<span id="cb8-5"><a href="#cb8-5"></a>          <span class="dt">VarE</span>   ‘(<span class="op">+</span>)    <span class="dt">LitE</span></span>
+<span id="cb8-6"><a href="#cb8-6"></a>            <span class="op">/</span>               \</span>
+<span id="cb8-7"><a href="#cb8-7"></a>          x_1               <span class="dt">IntegerL</span> </span>
+<span id="cb8-8"><a href="#cb8-8"></a>          <span class="op">/</span></span>
+<span id="cb8-9"><a href="#cb8-9"></a>        <span class="dv">4</span></span></code></pre></div>
+<p>This subtree represents the part that comes <em>after</em> the <code>-&gt;</code> in a regular lambda, that is, the expression we want to evaluate. The underlying idea is rather simple: we wrap variable names in the <code>VarE</code> expression constructor, and literals are wrapped with the <code>LitE</code> expression constructor. The <code>'name</code> construction allows our TH syntax trees to refer to functions and values defined in regular Haskell, and we use it to refer to the <code>(+)</code> function from Prelude, which is imported implicitly in every Haskell module. The <code>(+)</code> function is then encapsulated by a <code>VarE</code> constructor. Finally, these three expressions are wrapped inside the <code>InfixE</code> constructor, which looks like this:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1"></a><span class="dt">InfixE</span> (<span class="dt">Maybe</span> <span class="dt">Exp</span>) <span class="dt">Exp</span> (<span class="dt">Maybe</span> <span class="dt">Exp</span>)</span></code></pre></div>
+<p>Therefore, our <code>InfixE</code>* takes in three arguments and, together with its arguments, represents the <code>x + 4</code> operation. Note that <code>x</code> and <code>4</code> are passed as Maybe values. An expression like <code>x +</code> would have <code>Nothing</code> as its final argument.</p>
+<p>*You may be starting to notice a pattern in the capital letters that suffix each syntax constructor: the most common are <code>E</code>, <code>D</code>, <code>P</code>, or <code>T</code>, and they conveniently indicate whether a given term is a constructor for <code>Exp</code>, <code>Dec</code>, <code>Pat</code>, or <code>Type</code>.</p>
+<p>Finally, with the <code>LamE</code> constructor and its two arguments (the left and right subtrees in our diagram), we have all that we need to form the bulk of our <code>add4</code> function, which is of type:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1"></a><span class="ot">add4 ::</span> <span class="dt">Q</span> <span class="dt">Exp</span></span></code></pre></div>
+<p>That is, <code>add4</code> is simply an <code>Expression</code> encapsulated by the <code>Q</code> monad.</p>
+<p>Template Haskell programs are written inside the quotation monad <code>Q</code>. It supports the usual monadic operations as well as the <code>newName</code> function.</p>
+<h2 id="that-seems-like-a-lot-of-work">That seems like a lot of work!</h2>
+<p>You may be thinking that writing functions as explicit abstract syntax trees, albeit doable, is rather cumbersome. If a simple addition requires so many terms, writing a large program must take ages.</p>
+<p>Luckily, Template Haskell provides us with a convenient way of parsing a fragment of concrete Haskell syntax into an abstract syntax tree fragment. All we need to do is write the concrete syntax in <em>quotations</em>:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1"></a>add4' <span class="ot">=</span> [e| \x -&gt; x + 4|]</span></code></pre></div>
+<p>The <code>e</code> within the bracket indicates that this quotation encapsulates an expression. However, expressions are used so frequently in quotations that they are the default, and we could instead leave them out:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb12-1"><a href="#cb12-1"></a>add4' <span class="ot">=</span> [<span class="op">|</span>\x <span class="ot">-&gt;</span> x <span class="op">+</span> <span class="dv">4</span><span class="op">|</span>]</span></code></pre></div>
+<p>In GHCi, we can use the very convenient <code>runQ</code> function to execute the <code>add4</code> function inside the <code>Q</code> Monad:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1"></a>λ<span class="op">&gt;</span> runQ add4'</span>
+<span id="cb13-2"><a href="#cb13-2"></a></span>
+<span id="cb13-3"><a href="#cb13-3"></a><span class="dt">LamE</span> [<span class="dt">VarP</span> x_4] (<span class="dt">InfixE</span> (<span class="dt">Just</span> (<span class="dt">VarE</span> x_4)) (<span class="dt">VarE</span> <span class="op">GHC.Num.+</span>) (<span class="dt">Just</span> (<span class="dt">LitE</span> (<span class="dt">IntegerL</span> <span class="dv">4</span>))))</span></code></pre></div>
+<p>Which very conveniently returns our fully-fledged AST, just as we would expect!</p>
+<h2 id="quotations-and-quasi-quotes">Quotations and quasi-quotes</h2>
+<p>As we have seen, quotations allow us to parse concrete Haskell syntax into an abstract syntax tree, thus allowing us to write more ‘familiar’ Haskell code in a meta-program. A quotation has the form <code>[quoter| ... |]</code>, where ‘quoter’ can be one of <code>d</code>, <code>e</code>, <code>p</code>, or <code>t</code>, indicating that the code in <code>...</code> is a declaration, expression, pattern, or type, respectively.</p>
+<p>Since GHC 6.9, Template Haskell allows users to define their own way of parsing concrete Haskell code into abstract syntax trees. This is what, in part, allows for the embedding of domain specific languages in Haskell. One example of this is the <code>[sql|...|]</code> construction we saw in the beginning of this article.</p>
+<p>In the original Template Haskell paper [1], quotations are referred to as ‘quasi-quotes’. The term ‘quasi-quotes’ has since evolved to refer only to <a href="https://downloads.haskell.org/ghc/latest/docs/html/users_guide/exts/template_haskell.html#extension-QuasiQuotes">user-defined quotations</a>.</p>
+<h2 id="splicing">Splicing</h2>
+<p>To run a meta-program like <code>add4</code> or <code>add4'</code>, we use the <code>$</code> (read: <em>splice</em>) operator. The code snippet below evaluates <code>add4</code> and inserts the result (an object program) back in place of the splice.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb14-1"><a href="#cb14-1"></a>λ<span class="op">&gt;</span> <span class="op">$</span>(add4) <span class="dv">5</span></span>
+<span id="cb14-2"><a href="#cb14-2"></a></span>
+<span id="cb14-3"><a href="#cb14-3"></a><span class="dv">9</span></span></code></pre></div>
+<p>Note that there cannot be any space between the splice operator and the succeeding identifier or parenthesis.</p>
+<h1 id="step-2-dive-in">Step 2: Dive in!</h1>
+<p>We are now ready to explore a more complex example. This part was inspired by the suggested exercises from <a href="https://serokell.io/blog/introduction-to-template-haskell">this</a> blog post [3], and by the example given in [1].</p>
+<p>Suppose you want to write a function that, given a tuple <span class="math inline"><em>t</em></span> and a function <span class="math inline"><em>f</em></span>, applies <span class="math inline"><em>f</em></span> to one element of <span class="math inline"><em>t</em></span>. If we know, for example, that <span class="math inline"><em>t</em></span> has 3 elements, and we want to apply <span class="math inline"><em>f</em></span> to its second element, we can do the following:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb15-1"><a href="#cb15-1"></a><span class="ot">mapTuple2_3 ::</span> (a, t, c) <span class="ot">-&gt;</span> (t <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> (a, b, c)</span>
+<span id="cb15-2"><a href="#cb15-2"></a>mapTuple2_3 f (x1, x2, x3) <span class="ot">=</span> (x1, f x2, x3)</span></code></pre></div>
+<p>This implementation works just fine, but is rather limited: what if we want to access the first element of the tuple, rather than the second? Or what if we are dealing with a tuple of size different than 3?</p>
+<p>The <a href="https://hackage.haskell.org/package/lens-5.0.1/docs/Control-Lens-Tuple.html">lens</a> library has methods for dealing with tuples of arbitrary sizes, but it would be nice to be able generate our own instances and methods for dealing with tuples. This way, we are not limited by the constraints of external libraries—for example, lens only allows us to access the first 19 elements of a tuple.</p>
+<p>So, how can we write <code>mapTuple2_3</code> more generally? Ideally, we would want a higher-order function that, given a tuple of size <span class="math inline"><em>n</em></span> **and a tuple index <span class="math inline"> * <em>i</em>*</span>, can generate a function <code>mapTuplei_n</code> that behaves just like <code>mapTuple2_3</code>, but for the given parameters instead.</p>
+<p>In Template Haskell, we could invoke this higher order function the following way:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb16-1"><a href="#cb16-1"></a><span class="op">$</span>(mapTupleX <span class="dv">2</span> <span class="dv">3</span>) f t</span></code></pre></div>
+<p>But how can we write <code>mapTupleX</code>?</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb17-1"><a href="#cb17-1"></a><span class="ot">mapTuple ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Exp</span> <span class="dt">Q</span></span>
+<span id="cb17-2"><a href="#cb17-2"></a>mapTuple i n <span class="ot">=</span> [<span class="op">|</span> \f t <span class="ot">-&gt;</span> <span class="kw">case</span> t <span class="kw">of</span> <span class="op">...</span> <span class="op">|</span>]</span></code></pre></div>
+<p>Unfortunately, we cannot write the <code>...</code> part in normal Haskell, because the pattern for <code>case t</code> depends on the size of the tuple. Here, we start to see the limitations of the quotation (<code>[| ...|]</code>) notation: it only allows for indirect construction of ASTs, which may not be expressive enough for our programs.</p>
+<p>The quotation notation, although convenient, has limited expressiveness. To build certain meta-programs, we still have to rely on explicit syntax constructors.</p>
+<h2 id="generating-classes">Generating Classes</h2>
+<p>As we have seen, sometimes we cannot escape the daunting—but fun!—task of building explicit abstract syntax trees. To write the <code>mapTupleX</code> function, we start by creating the <code>MapTH.hs</code> file and importing the TH library.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb18-1"><a href="#cb18-1"></a><span class="ot">{-# LANGUAGE TemplateHaskell #-}</span></span>
+<span id="cb18-2"><a href="#cb18-2"></a></span>
+<span id="cb18-3"><a href="#cb18-3"></a><span class="kw">module</span> <span class="dt">MapTH</span> <span class="kw">where</span></span>
+<span id="cb18-4"><a href="#cb18-4"></a></span>
+<span id="cb18-5"><a href="#cb18-5"></a><span class="kw">import</span> <span class="dt">Control.Monad</span> (unless)</span>
+<span id="cb18-6"><a href="#cb18-6"></a><span class="kw">import</span> <span class="dt">Data.Traversable</span> (for)</span>
+<span id="cb18-7"><a href="#cb18-7"></a><span class="kw">import</span> <span class="dt">Language.Haskell.TH</span></span></code></pre></div>
+<p>Before writing the function that generates <code>mapTupleX</code> instances, we need a way of generating the <em>class</em> of tuples which we want to “<code>mapX</code>” over.</p>
+<p>Class declarations in TH are written with the <code>ClassD</code> constructor:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb19-1"><a href="#cb19-1"></a><span class="dt">ClassD</span> <span class="dt">Cxt</span> <span class="dt">Name</span> [<span class="dt">TyVarBndr</span> ()] [<span class="dt">FunDep</span>] [<span class="dt">Dec</span>]</span></code></pre></div>
+<p>Let’s take a look at each of its fields:</p>
+<ul>
+<li><p><strong><code>Cxt</code></strong>: a list of constraints on our types (e.g. <code>Eq a</code>, <code>Ord b</code>). In our case, we leave this empty.</p></li>
+<li><p><strong><code>Name</code></strong>: The name of our class. We will name each class <code>TupleMap</code> suffixed by the index of the element we want to apply <span class="math inline"><em>f</em></span> to.</p></li>
+<li><p><strong><code>[TryVarBndr]</code></strong> : These are the type bindings of our typeclass, which in our case are</p>
+<ul>
+<li><code>t</code>: the binding for the input tuple,</li>
+<li><code>t'</code>: the binding for the output tuple,</li>
+<li><code>r</code>: the binding for the element that we want to apply <span class="math inline"><em>f</em></span> to, and</li>
+<li><code>r'</code>: the binding for the result of function application on <code>r</code>.</li>
+</ul></li>
+<li><p><code>**[FunDep]**</code>: the functional dependencies of our class. In this case, we have:</p>
+<ul>
+<li><code>t -&gt; r</code>, and</li>
+<li><code>t' -&gt; r'</code></li>
+</ul>
+<p>We use these to indicate how our types ‘depend’ on each other: <code>r</code> is always an element of <code>t</code>, and <code>r'</code> is always an element of <code>t'</code>. Note that, just like mathematical functions are defined as a mapping of only one output for any given input, a functional dependency <code>x -&gt; y</code> indicates that there exists only one corresponding term of type <code>y</code> for any term of type <code>x</code>.</p></li>
+<li><p><code>**[Dec]**</code>: declarations for the class. Here, we have a method declaration <code>_X_</code>, which is of type <code>(r -&gt; r') -&gt; t -&gt; t'</code>.</p></li>
+</ul>
+<p>To follow the same standard as the tuple functions from the lens library, we use 1-based indexing. For safety, we also do a bounds-check in <code>index</code> using <code>unless</code>, which throws an error if a user tries to access a non-positive <code>index</code>.</p>
+<p>With this in mind, we can write our <code>TupleMapX</code> class generator:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb20-1"><a href="#cb20-1"></a><span class="ot">genTupleMapXClass ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Q</span> [<span class="dt">Dec</span>]</span>
+<span id="cb20-2"><a href="#cb20-2"></a>genTupleMapXClass <span class="fu">index</span> <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb20-3"><a href="#cb20-3"></a>  unless (<span class="fu">index</span> <span class="op">&gt;</span> <span class="dv">0</span>) <span class="op">$</span></span>
+<span id="cb20-4"><a href="#cb20-4"></a>    <span class="fu">fail</span> <span class="op">$</span> <span class="st">&quot;Non-positive index: &quot;</span> <span class="op">++</span> index_</span>
+<span id="cb20-5"><a href="#cb20-5"></a>  <span class="fu">pure</span> [cDecl]</span>
+<span id="cb20-6"><a href="#cb20-6"></a>  <span class="kw">where</span></span>
+<span id="cb20-7"><a href="#cb20-7"></a>    index_ <span class="ot">=</span> <span class="fu">show</span> <span class="fu">index</span></span>
+<span id="cb20-8"><a href="#cb20-8"></a>    className <span class="ot">=</span> mkName <span class="op">$</span> <span class="st">&quot;TupleMapX&quot;</span> <span class="op">++</span> index_</span>
+<span id="cb20-9"><a href="#cb20-9"></a>    methodName <span class="ot">=</span> mkName <span class="op">$</span> <span class="st">&quot;_&quot;</span> <span class="op">++</span> index_ <span class="op">++</span> <span class="st">&quot;_&quot;</span></span>
+<span id="cb20-10"><a href="#cb20-10"></a>    t <span class="ot">=</span> mkName <span class="st">&quot;t&quot;</span></span>
+<span id="cb20-11"><a href="#cb20-11"></a>    t' <span class="ot">=</span> mkName <span class="st">&quot;t'&quot;</span></span>
+<span id="cb20-12"><a href="#cb20-12"></a>    r <span class="ot">=</span> mkName <span class="st">&quot;r&quot;</span></span>
+<span id="cb20-13"><a href="#cb20-13"></a>    r' <span class="ot">=</span> mkName <span class="st">&quot;r'&quot;</span></span>
+<span id="cb20-14"><a href="#cb20-14"></a></span>
+<span id="cb20-15"><a href="#cb20-15"></a>    <span class="co">-- class TupleMapX t t' r r' | t -&gt; r, t' -&gt; r' where</span></span>
+<span id="cb20-16"><a href="#cb20-16"></a>    cDecl <span class="ot">=</span> <span class="dt">ClassD</span> </span>
+<span id="cb20-17"><a href="#cb20-17"></a>        []</span>
+<span id="cb20-18"><a href="#cb20-18"></a>        className </span>
+<span id="cb20-19"><a href="#cb20-19"></a>        [<span class="dt">PlainTV</span> t, <span class="dt">PlainTV</span> r, <span class="dt">PlainTV</span> t', <span class="dt">PlainTV</span> r']</span>
+<span id="cb20-20"><a href="#cb20-20"></a>        [<span class="dt">FunDep</span> [t] [r], <span class="dt">FunDep</span> [t'] [r']]</span>
+<span id="cb20-21"><a href="#cb20-21"></a>        [mDecl]</span>
+<span id="cb20-22"><a href="#cb20-22"></a></span>
+<span id="cb20-23"><a href="#cb20-23"></a>    <span class="co">--   _X_ :: (r -&gt; r') -&gt; t -&gt; t'</span></span>
+<span id="cb20-24"><a href="#cb20-24"></a>    mDecl <span class="ot">=</span> <span class="dt">SigD</span> methodName <span class="op">$</span></span>
+<span id="cb20-25"><a href="#cb20-25"></a>        arr (arr (<span class="dt">VarT</span> r) (<span class="dt">VarT</span> r')) (arr (<span class="dt">VarT</span> t) (<span class="dt">VarT</span> t'))</span>
+<span id="cb20-26"><a href="#cb20-26"></a></span>
+<span id="cb20-27"><a href="#cb20-27"></a><span class="co">-- Helper function: `arr x y` produces the type `x -&gt; y`</span></span>
+<span id="cb20-28"><a href="#cb20-28"></a><span class="ot">arr ::</span> <span class="dt">Type</span> <span class="ot">-&gt;</span> <span class="dt">Type</span> <span class="ot">-&gt;</span> <span class="dt">Type</span></span>
+<span id="cb20-29"><a href="#cb20-29"></a>arr <span class="ot">=</span> <span class="dt">AppT</span> <span class="op">.</span> <span class="dt">AppT</span> <span class="dt">ArrowT</span></span></code></pre></div>
+<h2 id="visualising-code--ddump-splices">Visualising code: <code>-ddump-splices</code></h2>
+<p>It is often helpful to visualise the code that Template Haskell is generating. We can add the <strong><code>-ddump-splices</code></strong> flag ****to GHCi to see the objects that our programs generated. For example:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb21-1"><a href="#cb21-1"></a>λ<span class="op">&gt;</span> <span class="op">:</span>set <span class="op">-</span>ddump<span class="op">-</span>splices</span>
+<span id="cb21-2"><a href="#cb21-2"></a>λ<span class="op">&gt;</span> <span class="op">$</span>(add4) <span class="dv">5</span></span>
+<span id="cb21-3"><a href="#cb21-3"></a><span class="op">&lt;</span>interactive<span class="op">&gt;:</span><span class="dv">78</span><span class="op">:</span><span class="dv">3</span><span class="op">-</span><span class="dv">6</span><span class="op">:</span> <span class="dt">Splicing</span> expression</span>
+<span id="cb21-4"><a href="#cb21-4"></a>    add4 <span class="op">======&gt;</span> \ x_a6Yot <span class="ot">-&gt;</span> (x_a6Yot <span class="op">+</span> <span class="dv">4</span>)</span>
+<span id="cb21-5"><a href="#cb21-5"></a><span class="dv">9</span></span></code></pre></div>
+<h2 id="staging-restrictions">Staging restrictions</h2>
+<p>At present, one cannot splice TH code into the same module as the code is defined. Therefore, let’s write a <code>Main.hs</code> file from which we can invoke the function that generates <code>TupleMapX</code> classes.</p>
+<p>In addition to the Template Haskell language extension, we include the <code>FlexibleInstances</code> pragma, which will allow us to create instances for tuples of any type. We also use the <code>FunctionalDependencies</code> extension to allow us to define functional dependencies, which we covered in the previous section.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb22-1"><a href="#cb22-1"></a><span class="ot">{-# LANGUAGE FlexibleInstances #-}</span></span>
+<span id="cb22-2"><a href="#cb22-2"></a><span class="ot">{-# LANGUAGE FunctionalDependencies #-}</span></span>
+<span id="cb22-3"><a href="#cb22-3"></a><span class="ot">{-# LANGUAGE TemplateHaskell #-}</span></span>
+<span id="cb22-4"><a href="#cb22-4"></a></span>
+<span id="cb22-5"><a href="#cb22-5"></a><span class="kw">import</span> <span class="dt">MapTH</span></span>
+<span id="cb22-6"><a href="#cb22-6"></a></span>
+<span id="cb22-7"><a href="#cb22-7"></a><span class="op">$</span>(genMapClass <span class="dv">2</span>)</span></code></pre></div>
+<p>Now, when loading <code>Main</code> in GHCi, we get:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb23-1"><a href="#cb23-1"></a>λ<span class="op">&gt;</span> <span class="op">:</span>l Main.hs</span>
+<span id="cb23-2"><a href="#cb23-2"></a>[<span class="dv">1</span> <span class="kw">of</span> <span class="dv">2</span>] <span class="dt">Compiling</span> <span class="dt">MapTH</span>            ( MapTH.hs, interpreted )</span>
+<span id="cb23-3"><a href="#cb23-3"></a>[<span class="dv">2</span> <span class="kw">of</span> <span class="dv">2</span>] <span class="dt">Compiling</span> <span class="dt">Main</span>             ( Main.hs, interpreted )</span>
+<span id="cb23-4"><a href="#cb23-4"></a>Main.hs<span class="op">:</span><span class="dv">7</span><span class="op">:</span><span class="dv">3</span><span class="op">-</span><span class="dv">21</span><span class="op">:</span> <span class="dt">Splicing</span> declarations</span>
+<span id="cb23-5"><a href="#cb23-5"></a>    genTupleMapXClass <span class="dv">2</span></span>
+<span id="cb23-6"><a href="#cb23-6"></a>  <span class="op">======&gt;</span></span>
+<span id="cb23-7"><a href="#cb23-7"></a>    <span class="kw">class</span> <span class="dt">TupleMapX2</span> t r t' r' <span class="op">|</span> t <span class="ot">-&gt;</span> r, t' <span class="ot">-&gt;</span> r' <span class="kw">where</span></span>
+<span id="cb23-8"><a href="#cb23-8"></a><span class="ot">      _2_ ::</span> (r <span class="ot">-&gt;</span> r') <span class="ot">-&gt;</span> t <span class="ot">-&gt;</span> t'</span></code></pre></div>
+<p>The class and method declarations look as they should!</p>
+<h2 id="generating-instances">Generating Instances</h2>
+<p>We can now take a stab at actually <em>implementing</em> our method by writing an instance of <code>TupleMapX</code>.</p>
+<p>Firstly, let’s look at how instance declarations are defined in TH:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb24-1"><a href="#cb24-1"></a><span class="dt">InstanceD</span> (<span class="dt">Maybe</span> <span class="dt">Overlap</span>) <span class="dt">Cxt</span> <span class="dt">Type</span> [<span class="dt">Dec</span>]</span></code></pre></div>
+<p>The constructor fields of <code>InstanceD</code> are the following:</p>
+<ul>
+<li><code>**Maybe Overlap</code>** and <strong><code>Cxt</code></strong>: these represent, respectively, potential instance overlaps and type constraints; we won’t need either.</li>
+<li><strong><code>Type</code>:</strong> the type of our instance. This will be the class name (<code>TupleMapX</code>, where <code>X</code> is the index of <code>r</code> ) followed by <code>t</code>, <code>r</code>, <code>t'</code>, and <code>r'</code>, as defined previously.</li>
+<li><code>**[Dec]**</code>: **** a list of declarations for our instance: think of this as the bit that comes in the <code>where ...</code> of regular Haskell declarations.</li>
+</ul>
+<p>In our case, the field <code>[Dec]</code> will consist of a single declaration: our method declaration, which is a function declaration specifying that we want to apply function <span class="math inline"><em>f</em></span> to a given element of the input tuple. Let’s also have a look at how function declarations look like in TH:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb25-1"><a href="#cb25-1"></a><span class="dt">FunD</span> <span class="dt">Name</span> [<span class="dt">Clause</span>]</span></code></pre></div>
+<p>The first field of <code>FunD</code> will be the name of our method (<code>_index_</code>, as previously defined), and the second field will be a list of <code>Clause</code>s. What exactly is a <code>Clause</code>?</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb26-1"><a href="#cb26-1"></a><span class="dt">Clause</span> [<span class="dt">Pat</span>] <span class="dt">Body</span> [<span class="dt">Dec</span>]</span></code></pre></div>
+<p>So the fields of <code>Clause</code> are a list of patterns, a body (which may have guards or not), and a list of declarations. This is exactly how regular Haskell functions are defined. For example, let <code>pat1</code> and <code>pat2</code> be patterns and <code>decs</code> be a list of declarations, and check out the following ‘clause’ in normal Haskell:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb27-1"><a href="#cb27-1"></a>f { pat1 pat2 <span class="ot">=</span> body <span class="kw">where</span> decs }</span></code></pre></div>
+<p>Neat! So, the <code>Clause</code> in our function declaration should take in a Pattern that <span class="math inline"><em>f</em></span> can be matched against, a pattern that our input tuple <em>t</em> can be matched against, and a body specifying that we should return a <span class="math inline"><em>t</em>′</span> that is just like <span class="math inline"><em>t</em></span>, except that it contains an element <span class="math inline"> * <em>r</em>′ = <em>f</em></span>* <span class="math inline"><em>r</em></span> where <span class="math inline"><em>t</em></span> had <span class="math inline"><em>r</em></span>. That’s it! We won’t even have any use for the <code>[Decs]</code>.</p>
+<p>Without further ado, here is the function that generates an instance of TupleMapX</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb28-1"><a href="#cb28-1"></a><span class="co">-- Generate an instance of TupleMapX</span></span>
+<span id="cb28-2"><a href="#cb28-2"></a><span class="ot">genTupleMapXInstance ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Q</span> [<span class="dt">Dec</span>]</span>
+<span id="cb28-3"><a href="#cb28-3"></a>genTupleMapXInstance <span class="fu">index</span> size  <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb28-4"><a href="#cb28-4"></a>  unless (<span class="fu">index</span> <span class="op">&gt;</span> <span class="dv">0</span>) <span class="op">$</span></span>
+<span id="cb28-5"><a href="#cb28-5"></a>    <span class="fu">fail</span> <span class="op">$</span> <span class="st">&quot;Non-positive index: &quot;</span> <span class="op">++</span> index_</span>
+<span id="cb28-6"><a href="#cb28-6"></a>  unless (size <span class="op">&gt;=</span> <span class="fu">index</span>) <span class="op">$</span></span>
+<span id="cb28-7"><a href="#cb28-7"></a>    <span class="fu">fail</span> <span class="op">$</span> <span class="st">&quot;Can't access index &quot;</span> <span class="op">++</span> index_ <span class="op">++</span> <span class="st">&quot; of &quot;</span> <span class="op">++</span> size_ <span class="op">++</span> <span class="st">&quot;-tuple&quot;</span></span>
+<span id="cb28-8"><a href="#cb28-8"></a>  <span class="fu">pure</span> [iDecl]</span>
+<span id="cb28-9"><a href="#cb28-9"></a>  <span class="kw">where</span></span>
+<span id="cb28-10"><a href="#cb28-10"></a>    index_ <span class="ot">=</span> <span class="fu">show</span> <span class="fu">index</span></span>
+<span id="cb28-11"><a href="#cb28-11"></a>    size_  <span class="ot">=</span> <span class="fu">show</span> size</span>
+<span id="cb28-12"><a href="#cb28-12"></a>    </span>
+<span id="cb28-13"><a href="#cb28-13"></a>    className <span class="ot">=</span> mkName <span class="op">$</span> <span class="st">&quot;TupleMapX&quot;</span> <span class="op">++</span> size_</span>
+<span id="cb28-14"><a href="#cb28-14"></a>    methodName <span class="ot">=</span> mkName <span class="op">$</span> <span class="st">&quot;_&quot;</span> <span class="op">++</span> index_ <span class="op">++</span> <span class="st">&quot;_&quot;</span></span>
+<span id="cb28-15"><a href="#cb28-15"></a>    </span>
+<span id="cb28-16"><a href="#cb28-16"></a>    <span class="co">-- Name for the function that we want to MapX </span></span>
+<span id="cb28-17"><a href="#cb28-17"></a>    f <span class="ot">=</span> mkName <span class="st">&quot;f&quot;</span></span>
+<span id="cb28-18"><a href="#cb28-18"></a></span>
+<span id="cb28-19"><a href="#cb28-19"></a>    <span class="co">-- helper function: tag x = x' :: String</span></span>
+<span id="cb28-20"><a href="#cb28-20"></a>    tag <span class="ot">=</span> (<span class="op">&lt;&gt;</span> <span class="st">&quot;'&quot;</span>) <span class="op">.</span> <span class="fu">show</span></span>
+<span id="cb28-21"><a href="#cb28-21"></a></span>
+<span id="cb28-22"><a href="#cb28-22"></a>    <span class="co">-- Types ---------------------------------------------------------------</span></span>
+<span id="cb28-23"><a href="#cb28-23"></a>    <span class="co">-- vars  = [Var &quot;t1&quot;, Var &quot;t2&quot;, ..., Var &quot;t{index}&quot;, ...]</span></span>
+<span id="cb28-24"><a href="#cb28-24"></a>    vars  <span class="ot">=</span> [<span class="dt">VarT</span> <span class="op">$</span> mkName (<span class="ch">'t'</span> <span class="op">:</span> <span class="fu">show</span> n) <span class="op">|</span> n <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="op">..</span>size]]</span>
+<span id="cb28-25"><a href="#cb28-25"></a>    <span class="co">-- vars' = [Var &quot;t1&quot;, Var &quot;t2&quot;, ..., Var &quot;t{index}'&quot;, ...]</span></span>
+<span id="cb28-26"><a href="#cb28-26"></a>    vars' <span class="ot">=</span> [<span class="dt">VarT</span> <span class="op">$</span> mkName (<span class="ch">'t'</span> <span class="op">:</span> show' n) <span class="op">|</span> n <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="op">..</span>size]]</span>
+<span id="cb28-27"><a href="#cb28-27"></a>      <span class="kw">where</span> show' n <span class="ot">=</span> <span class="kw">if</span> n <span class="op">==</span> <span class="fu">index</span> <span class="kw">then</span> tag n <span class="kw">else</span> <span class="fu">show</span> n</span>
+<span id="cb28-28"><a href="#cb28-28"></a></span>
+<span id="cb28-29"><a href="#cb28-29"></a>    tuple  <span class="ot">=</span> mkTuple vars</span>
+<span id="cb28-30"><a href="#cb28-30"></a>    tuple' <span class="ot">=</span> mkTuple vars'</span>
+<span id="cb28-31"><a href="#cb28-31"></a>    term   <span class="ot">=</span> mkTerm <span class="op">$</span> <span class="fu">show</span> <span class="fu">index</span></span>
+<span id="cb28-32"><a href="#cb28-32"></a>    term'  <span class="ot">=</span> mkTerm <span class="op">$</span> tag <span class="fu">index</span></span>
+<span id="cb28-33"><a href="#cb28-33"></a></span>
+<span id="cb28-34"><a href="#cb28-34"></a>    <span class="co">-- Helpers</span></span>
+<span id="cb28-35"><a href="#cb28-35"></a>    <span class="co">-- mkTuple :: Foldable t =&gt; t Type -&gt; Type</span></span>
+<span id="cb28-36"><a href="#cb28-36"></a>    <span class="co">-- mkTuple [t1, t2, ...] = (t1, t2, ...)</span></span>
+<span id="cb28-37"><a href="#cb28-37"></a>    mkTuple <span class="ot">=</span> <span class="fu">foldl</span> <span class="dt">AppT</span> <span class="op">$</span> <span class="dt">TupleT</span> size</span>
+<span id="cb28-38"><a href="#cb28-38"></a></span>
+<span id="cb28-39"><a href="#cb28-39"></a>    <span class="co">-- mkTerm :: [Char] -&gt; Type</span></span>
+<span id="cb28-40"><a href="#cb28-40"></a>    <span class="co">-- mkTerm &quot;3&quot; = Name &quot;t3&quot;</span></span>
+<span id="cb28-41"><a href="#cb28-41"></a>    mkTerm <span class="ot">=</span> <span class="dt">VarT</span> <span class="op">.</span> mkName <span class="op">.</span> (<span class="ch">'t'</span> <span class="op">:</span>)</span>
+<span id="cb28-42"><a href="#cb28-42"></a></span>
+<span id="cb28-43"><a href="#cb28-43"></a>    <span class="co">-- Pattern -------------------------------------------------------------</span></span>
+<span id="cb28-44"><a href="#cb28-44"></a>    tuplePattern <span class="ot">=</span> <span class="dt">TupP</span> [ <span class="dt">VarP</span> <span class="op">$</span> mkName  (<span class="ch">'t'</span> <span class="op">:</span> <span class="fu">show</span> n) <span class="op">|</span> n <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="op">..</span>size] ]</span>
+<span id="cb28-45"><a href="#cb28-45"></a></span>
+<span id="cb28-46"><a href="#cb28-46"></a>    <span class="co">-- Expression-----------------------------------------------------------</span></span>
+<span id="cb28-47"><a href="#cb28-47"></a>    tupleExpression <span class="ot">=</span> <span class="dt">TupE</span> [ <span class="dt">Just</span> <span class="op">$</span> mkExpr n <span class="op">|</span> n <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="op">..</span>size] ]</span>
+<span id="cb28-48"><a href="#cb28-48"></a>      <span class="kw">where</span> </span>
+<span id="cb28-49"><a href="#cb28-49"></a>        var n <span class="ot">=</span> <span class="dt">VarE</span> <span class="op">.</span> mkName <span class="op">$</span> <span class="ch">'t'</span> <span class="op">:</span> <span class="fu">show</span> n</span>
+<span id="cb28-50"><a href="#cb28-50"></a>        mkExpr n <span class="ot">=</span> <span class="kw">if</span> n <span class="op">==</span> <span class="fu">index</span></span>
+<span id="cb28-51"><a href="#cb28-51"></a>          <span class="kw">then</span> <span class="dt">AppE</span> (<span class="dt">VarE</span> f) <span class="op">$</span> var n</span>
+<span id="cb28-52"><a href="#cb28-52"></a>          <span class="kw">else</span> var n</span>
+<span id="cb28-53"><a href="#cb28-53"></a>    </span>
+<span id="cb28-54"><a href="#cb28-54"></a>    <span class="co">-- Instance declaration ------------------------------------------------</span></span>
+<span id="cb28-55"><a href="#cb28-55"></a>    <span class="co">-- instance TupleMapX (t1, t2, ..., t{index}, ...) t{index} (t1, t2, ..., t{index}', ...) t{index}'</span></span>
+<span id="cb28-56"><a href="#cb28-56"></a>    iDecl <span class="ot">=</span> <span class="dt">InstanceD</span> </span>
+<span id="cb28-57"><a href="#cb28-57"></a>        <span class="dt">Nothing</span></span>
+<span id="cb28-58"><a href="#cb28-58"></a>        []</span>
+<span id="cb28-59"><a href="#cb28-59"></a>        (<span class="dt">AppT</span></span>
+<span id="cb28-60"><a href="#cb28-60"></a>          (<span class="dt">AppT</span> </span>
+<span id="cb28-61"><a href="#cb28-61"></a>            (<span class="dt">AppT</span> </span>
+<span id="cb28-62"><a href="#cb28-62"></a>              (<span class="dt">AppT</span> </span>
+<span id="cb28-63"><a href="#cb28-63"></a>                (<span class="dt">ConT</span> className) <span class="co">-- TupleMapX</span></span>
+<span id="cb28-64"><a href="#cb28-64"></a>                tuple) <span class="co">-- (t1,t2, ..., t_{index}, ...)  :: Type</span></span>
+<span id="cb28-65"><a href="#cb28-65"></a>              term)    <span class="co">--              t_{index}        :: Type</span></span>
+<span id="cb28-66"><a href="#cb28-66"></a>            tuple')    <span class="co">-- (t1,t2, ..., t_{index}', ...) :: Type</span></span>
+<span id="cb28-67"><a href="#cb28-67"></a>          term')       <span class="co">--              t_{index}'.      :: Type</span></span>
+<span id="cb28-68"><a href="#cb28-68"></a>        [mDecl]</span>
+<span id="cb28-69"><a href="#cb28-69"></a></span>
+<span id="cb28-70"><a href="#cb28-70"></a>    <span class="co">-- Method declaration -------------------------------------------------- </span></span>
+<span id="cb28-71"><a href="#cb28-71"></a>    <span class="co">-- _X_ f (t1, t2, ..., t{index}, ...) = (t1, t2, ..., f t{index}, ...)</span></span>
+<span id="cb28-72"><a href="#cb28-72"></a>    mDecl <span class="ot">=</span> <span class="dt">FunD</span> </span>
+<span id="cb28-73"><a href="#cb28-73"></a>                methodName                    <span class="co">-- _X_</span></span>
+<span id="cb28-74"><a href="#cb28-74"></a>                [ <span class="dt">Clause</span>                      <span class="co">-- (=)</span></span>
+<span id="cb28-75"><a href="#cb28-75"></a>                    [ <span class="dt">VarP</span> f                  <span class="co">-- f :: Pattern</span></span>
+<span id="cb28-76"><a href="#cb28-76"></a>                    , tuplePattern            <span class="co">-- (t1, t2, ...,   t{index}, ...) :: Pattern</span></span>
+<span id="cb28-77"><a href="#cb28-77"></a>                    ]</span>
+<span id="cb28-78"><a href="#cb28-78"></a>                    (<span class="dt">NormalB</span> tupleExpression) <span class="co">-- (t1, t2, ..., f t{index}, ...) :: Expression</span></span>
+<span id="cb28-79"><a href="#cb28-79"></a>                    []</span>
+<span id="cb28-80"><a href="#cb28-80"></a>                ]</span></code></pre></div>
+<p>We can now add the line <code>$(genTupleMapXInstance 2 3)</code> to <code>Main.hs</code> to generate a method that applies a function to the second element of a three-element tuple and load it to GHCi:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb29-1"><a href="#cb29-1"></a>λ<span class="op">&gt;</span> <span class="op">:</span>l <span class="dt">Main</span></span>
+<span id="cb29-2"><a href="#cb29-2"></a>Main.hs<span class="op">:</span><span class="dv">8</span><span class="op">:</span><span class="dv">3</span><span class="op">-</span><span class="dv">26</span><span class="op">:</span> <span class="dt">Splicing</span> declarations</span>
+<span id="cb29-3"><a href="#cb29-3"></a>    genTupleMapXInstance <span class="dv">2</span> <span class="dv">3</span></span>
+<span id="cb29-4"><a href="#cb29-4"></a>  <span class="op">======&gt;</span></span>
+<span id="cb29-5"><a href="#cb29-5"></a>    <span class="kw">instance</span> <span class="dt">TupleMapX2</span> (t1, t2, t3) t2 (t1, t2', t3) t2' <span class="kw">where</span></span>
+<span id="cb29-6"><a href="#cb29-6"></a>      _2_ f (t1, t2, t3) <span class="ot">=</span> (t1, f t2, t3)</span></code></pre></div>
+<p>Note that, in order for the instance declaration to compile, we must have already defined the class <code>TupleMapX2</code> (by running <code>$(genTupleMapX 2)</code>) earlier. Luckily, we have done that.</p>
+<p>Hooray! We are finally able to use our TupleMapX method:</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb30-1"><a href="#cb30-1"></a>λ<span class="op">&gt;</span> _2_ ((<span class="op">++</span>) <span class="st">&quot;&lt;3 &quot;</span>) (<span class="dt">True</span>, <span class="st">&quot;holmusk&quot;</span>, <span class="dv">100</span>)<span class="ot"> ::</span> (<span class="dt">Bool</span>, <span class="dt">String</span>, <span class="dt">Integer</span>)</span>
+<span id="cb30-2"><a href="#cb30-2"></a>(<span class="dt">True</span>,<span class="st">&quot;&lt;3 holmusk&quot;</span>,<span class="dv">100</span>)</span></code></pre></div>
+<p>To make our lives easier and avoid having to generate new classes and instances every time we want to access a different index or a tuple of a different size, we can write a function that generates all of the instances and classes we will need.</p>
+<p>Given a function that generates a class declaration, and a function that generates an instance declaration for this class, and a tuple size limit <span class="math inline"><em>n</em></span>, <code>genTupleMapXBoilerplate</code> generates every class <code>TupleMapX</code> for indexes <span class="math inline"><em>i</em> ≤ <em>n</em></span>, and every instance <code>TupleMapX</code> <span class="math inline"><em>i</em></span> <span class="math inline"><em>m</em></span> such that <span class="math inline"><em>i</em> ≤ <em>m</em> ≤ <em>n</em></span>.</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb31-1"><a href="#cb31-1"></a><span class="co">-- generate all TupleMapX classes and instances up to a given tuple size</span></span>
+<span id="cb31-2"><a href="#cb31-2"></a><span class="co">-- The maximum tuple size that GHC can handle is 62 elements</span></span>
+<span id="cb31-3"><a href="#cb31-3"></a><span class="ot">genTupleMapXBoilerplate ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Q</span> [<span class="dt">Dec</span>]</span>
+<span id="cb31-4"><a href="#cb31-4"></a>genTupleMapXBoilerplate maxTupleSize <span class="ot">=</span> genBoilerplate </span>
+<span id="cb31-5"><a href="#cb31-5"></a>  genTupleMapXClass </span>
+<span id="cb31-6"><a href="#cb31-6"></a>  genTupleMapXInstance </span>
+<span id="cb31-7"><a href="#cb31-7"></a>  maxTupleSize</span>
+<span id="cb31-8"><a href="#cb31-8"></a></span>
+<span id="cb31-9"><a href="#cb31-9"></a><span class="co">-- Helper function</span></span>
+<span id="cb31-10"><a href="#cb31-10"></a>genBoilerplate </span>
+<span id="cb31-11"><a href="#cb31-11"></a><span class="ot">  ::</span> (<span class="dt">Int</span>        <span class="ot">-&gt;</span> <span class="dt">Q</span> [<span class="dt">Dec</span>])</span>
+<span id="cb31-12"><a href="#cb31-12"></a>  <span class="ot">-&gt;</span> (<span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Q</span> [<span class="dt">Dec</span>])</span>
+<span id="cb31-13"><a href="#cb31-13"></a>  <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
+<span id="cb31-14"><a href="#cb31-14"></a>  <span class="ot">-&gt;</span> <span class="dt">Q</span> [<span class="dt">Dec</span>]</span>
+<span id="cb31-15"><a href="#cb31-15"></a>genBoilerplate genClass genInstance <span class="fu">max</span> <span class="ot">=</span></span>
+<span id="cb31-16"><a href="#cb31-16"></a>  concatFor [<span class="dv">1</span><span class="op">..</span><span class="fu">max</span>] <span class="op">$</span> \classDeclIndex <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb31-17"><a href="#cb31-17"></a>    cDecl  <span class="ot">&lt;-</span> genClass classDeclIndex</span>
+<span id="cb31-18"><a href="#cb31-18"></a>    iDecls <span class="ot">&lt;-</span> for [<span class="dv">1</span><span class="op">..</span>classDeclIndex] <span class="op">$</span> \instanceDeclIndex <span class="ot">-&gt;</span></span>
+<span id="cb31-19"><a href="#cb31-19"></a>      genInstance instanceDeclIndex classDeclIndex</span>
+<span id="cb31-20"><a href="#cb31-20"></a></span>
+<span id="cb31-21"><a href="#cb31-21"></a>    <span class="fu">pure</span> <span class="op">$</span> <span class="fu">concat</span> (cDecl <span class="op">:</span> iDecls)</span>
+<span id="cb31-22"><a href="#cb31-22"></a>  <span class="kw">where</span></span>
+<span id="cb31-23"><a href="#cb31-23"></a>    concatFor xs <span class="ot">=</span> <span class="fu">fmap</span> <span class="fu">concat</span> <span class="op">.</span> for xs</span></code></pre></div>
+<p>With that, we can set our <code>Main.hs</code> file to contain <code>$(genTupleMapXBoilerplate 62)</code>,* and just about every <code>TupleMapX</code> class and instance will be readily available to us!</p>
+<p>*GHC can only handle tuples of up to 62 elements.</p>
+<h1 id="back-to-where-we-started">Back to where we started</h1>
+<p>So… What does <code>[sql|...|]</code> do, again?</p>
+<p>Now we are equipped to answer this question ourselves! Sadly, however, we will find that this construction is not nearly as magical as it seems.</p>
+<p>If we look at the <a href="https://hackage.haskell.org/package/postgresql-simple-0.6.4/docs/src/Database.PostgreSQL.Simple.SqlQQ.html#sql">source code</a> where the <code>sql</code> quasi-quotes are defined, we find that this construction simply removes some white space and removes comments from the part in <code>...</code>. The bulk of the work of embedding SQL code into Haskell is done by other, non-Template Haskell functions from the <a href="https://hackage.haskell.org/package/postgresql-simple-0.6.4/docs/Database-PostgreSQL-Simple.html#g:2">postgresql-simple</a> library.</p>
+<h1 id="setting-sail-some-key-takeaways">Setting sail: some key takeaways</h1>
+<p>You should now have all the equipment necessary to continue learning and experimenting with Template Haskell on your own. Here are some parting thoughts:</p>
+<ol type="1">
+<li><p><em>Know your <strong>DEPT</strong></em></p>
+<p>Template Haskell code is simply Haskell code, but its own set of constructors and functions, as well as some additional syntax that allows it to operate at compile time (i.e., quoting and splicing operators). You can find out everything about TH <strong>D</strong>eclarations, <strong>E</strong>xpressions, <strong>P</strong>atterns and <strong>T</strong>ypes, and more in the <a href="https://hackage.haskell.org/package/template-haskell-2.17.0.0/docs/Language-Haskell-TH.html">TH page on Hackage</a> and the TH <a href="https://downloads.haskell.org/ghc/latest/docs/html/users_guide/exts/template_haskell.html">documentation</a>.</p></li>
+<li><p><em>Quotations are very helpful, within limits</em></p>
+<p>Use quotations for the convenience, but be mindful that they cannot express everything. For programs like <code>genTupleMapXClass</code> and <code>genTupleMapXInstance</code>, TH’s explicit syntax constructors are still our best weapons.</p></li>
+<li><p><em>GHCi is your friend</em></p>
+<p>Testing small bits of code is always easier than trying to execute a large module. Make good use of the <code>-ddump-splices</code> flag and the <code>runQ</code> function and test away!</p></li>
+</ol>
+<h1 id="notes">Notes</h1>
+<p>The <code>TupleMapX</code> code was written with the help of Dmitry Vagner. Dmitry helped make the code more readable by abstracting away boilerplate code and refactoring some expressions. Any errors are my own.</p>
+<p>I would also like to thank to Dmitry Vagner and Jan Hrček for the careful review of this article and the many helpful comments.</p>
+<h1 id="references">References</h1>
+<p>[1] Sheard, Tim, and Simon P. Jones. 2002. “Template Meta-programming for Haskell.” Proceedings of the 2002 ACM SIGPLAN Workshop on Haskell.</p>
+<p>[2] Jan Hrček, <a href="https://github.com/jhrcek/hs-playground/blob/main/template-haskell-intro/presentation.odp">https://github.com/jhrcek/hs-playground/blob/main/template-haskell-intro/presentation.odp</a>. Last accessed 4 Aug 2021.</p>
+<p>[3] de Paula, Heitor T. L. 2021. “A Brief Introduction to Template Haskell”, <a href="https://serokell.io/blog/introduction-to-template-haskell">https://serokell.io/blog/introduction-to-template-haskell</a>. Last accessed 4 Aug 2021.</p>
+          </div>
+        </div>
+      </div>
+    </article>
+
+</div>
+
+   </div>
+ </div>
+
+ <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-10 col-md-12 mx-auto">
+        <p class="copyright text-muted">©2019 Holmusk</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+</body>
+</html>

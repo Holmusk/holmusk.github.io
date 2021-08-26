@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Holmusk Tech Blog">
+  <meta name="keywords" content="Haskell, Elm, Dart, Functional progarmming, FP">
+  <meta name="author" content="Holmusk" />
+  <title>Holmusk | Analysing User Research Effectively</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="../css/main.css">
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8=" crossorigin="anonymous">
+  </script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg fixed-top" id="mainNav">
+    <div class="container">
+        <a class="navbar-brand" href="../index.html">
+            <img src="../images/holmusk_product_blog.svg" alt="Holmusk Tech Blog">
+        </a>
+        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+          Menu
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="../index.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../blog.html">Blog Posts</a>
+            </li>
+          </ul>
+        </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+ <div class="container" id="page-content">
+   <div class="row">
+     <div class="container">
+    <div class="row">
+        <div class="col-lg-10 col-md-12 mx-auto">
+            <h1 class="title">Analysing User Research Effectively</h1>
+            <div class="post-context">
+              <div>
+                <span class="author"> Seah Qi Yan </span>
+                
+              </div>
+
+              <div class="date">August 20, 2021</div>
+            </div>
+            <div class="tag-list">
+              
+              <span><a class="tag" href="../tags/design.html">design</a></span>
+              
+              <span><a class="tag" href="../tags/user research.html">user research</a></span>
+              
+              <span><a class="tag" href="../tags/user experience.html">user experience</a></span>
+              
+              <span><a class="tag" href="../tags/UX.html">UX</a></span>
+              
+            </div>
+        </div>
+    </div>
+
+    <article>
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-10 col-md-12 mx-auto">
+            <div class="toc"><ul>
+<li><a href="#testing-the-test">01 Testing the test</a><ul>
+<li><a href="#steps">Steps:</a></li>
+</ul></li>
+<li><a href="#during-a-test-session">02 During a test session</a></li>
+<li><a href="#after-each-test-session">03 After each test session</a></li>
+<li><a href="#after-one-research-iteration">04 After one research iteration</a></li>
+<li><a href="#consolidating-insights">05 Consolidating insights</a><ul>
+<li><a href="#here-are-3-key-tips-to-delivering-your-insights">Here are 3 key tips to delivering your insights:</a></li>
+</ul></li>
+</ul></div>
+            <p>When it comes to designing a product, user research can be the most vital tool to validate design decisions and product features in relation to how much they meet the needs of our target users. You may find a more in-depth introduction to user research <a href="../blog/2021-03-09-Introduction-to-UX-research-Part-1.html">here</a>.</p>
+<p>Talking to potential users and getting their input when conducting user research can be an exciting and insightful process. However, it can also be overwhelming to the team conducting the research, where there is a growing amount of both qualitative and quantitative data. Hence, this blog post aims to cover some step-by-step methods of analysis that allow us to effectively obtain relevant and actionable insights from user research data.</p>
+<h2 id="testing-the-test">01 Testing the test</h2>
+<p>It may be common for us to think that research analysis should be done after an iteration of user research where a considerable amount of user research data has been collected. However, there is one method of analysis that should occur before conducting extensive user research which is called a ‘pilot test’.</p>
+<p>The objective of this analysis is to evaluate the effectiveness of our existing test flow and test questions, as well as how to improve them, by conducting a dry-run of the test with one user.</p>
+<h3 id="steps">Steps:</h3>
+<ol type="1">
+<li>Run the test sequence with your selected dry-run user - treat them as your first interviewee</li>
+<li>Analyse how they respond to your questions:
+<ul>
+<li>Is there any confusion?</li>
+<li>Are they answering in the way you planned?</li>
+<li>Are the instructions given easy to understand?</li>
+<li>Any areas where they need more guidance?</li>
+</ul></li>
+<li>Modify your test based on the insights from the above step, such as:
+<ul>
+<li>Improving the language used in your questions</li>
+<li>Improving the flow of your prototype (if applicable)</li>
+<li>Adding more questions to target your research objectives</li>
+<li>Rearranging the questions or the flow of the test itself</li>
+<li>Preparing extra materials that might be useful to the research and/or users</li>
+</ul></li>
+</ol>
+<p>For example, this exercise can uncover questions that are too complicated for users to answer effectively, such as double-barreled questions that contain two prompts for the user to answer. As a result, users may miss out the second prompt of the question, or answer with points mainly targeting the first prompt, leading to misleading research results. An example of how to improve such questions is shown below.</p>
+<p><img src="../images/blogposts/analysing-user-research/Qn_Example.png" /></p>
+<p><em>An example of how to improve double-barreled questions</em></p>
+<p>This ‘pilot test’ is very important and can be pivotal to the outcome of your research study, especially for the test facillitators. From the test run, they could become more confident in avoiding leading questions that could invalidate user response, and also get a better sense of the average time taken to complete a test session. Hence, by using this method to fine-tune our research study, we can achieve insights that are more relevant to our research objectives and prevent scenarios where test sessions did not go as planned.</p>
+<h2 id="during-a-test-session">02 During a test session</h2>
+<p>It is important for researchers to observe participants beyond their literal verbal or written answers to test prompts/questions. In fact, there are many other forms of data that can be analysed, both intangible (soft data) and tangible (hard data), for us to draw insights from as explained in the table below.</p>
+<p><em>A table of soft and hard data that can be analysed to increase level of analysis in user research</em></p>
+<table>
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 28%" />
+<col style="width: 44%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Type of Data</th>
+<th>Data captured</th>
+<th>What to look out for</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Soft Data</td>
+<td>Emotion</td>
+<td>User’s tone of voice, language/adjectives used</td>
+</tr>
+<tr class="even">
+<td>Body language</td>
+<td>Analyse their facial expressions, body movements. (e.g. are they scratching their heads in confusion?)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td>User actions</td>
+<td>What clicks did they make to reach a certain section? What other things caught their interest (e.g. did they mouse over something else) and why? You can also convert this to hard data via Heatmaps!</td>
+</tr>
+<tr class="even">
+<td>Hard Data</td>
+<td>Time-to-completion</td>
+<td>How long did they take to complete a certain task? How many clicks/steps did they take?</td>
+</tr>
+<tr class="odd">
+<td></td>
+<td>Word-frequency analysis</td>
+<td>What are some descriptors/adjectives that they used to describe a process or answer your questions? P.S. Keep a log of these words to compare against other test participants.</td>
+</tr>
+<tr class="even">
+<td></td>
+<td>Ratings</td>
+<td>If you had asked them to rate on a scale of 1-5, what were their answers? Do you think the ratings correlate to their performance in the tests?</td>
+</tr>
+<tr class="odd">
+<td></td>
+<td>Heatmaps (data visualization showing how users click, scroll, and navigate the screen)</td>
+<td>What are the most common areas users hover over or click on? Where do mis-clicks occur the most?</td>
+</tr>
+</tbody>
+</table>
+<p>Being able to capture the types of data explained above can significantly add to the depth and level of analysis of your research. In the case of soft data, it is even more so important to understand the underlying user intentions by probing further in a precise, yet unintentional manner to avoid any assumptions in analysis. Oftentimes, this is easier if test participants are comfortable to speak or think out loud during the test. Thus, as the researcher, we should explain to users that there are no right or wrong answers during the test, allowing them to speak freely and give insights accurate to their experiences.</p>
+<h2 id="after-each-test-session">03 After each test session</h2>
+<p>While we may be eager to squeeze as many test sessions as possible on our calendar, we should also leave ample buffer time between sessions to perform a brief analysis after each user interview. The team can take a short break to think calmly and critically about the discussion points before coming together for analysis. Discussing findings with each other shortly after a session can highlight different insights and observations that were not picked up by others, instead of homogenised insights.</p>
+<p>At the same time, it would be helpful to keep a log of patterns or trends that occur within the research tests, such as:</p>
+<ul>
+<li>Was this same point/response to a question mentioned by a previous test participant?</li>
+<li>Did the test participants similarly struggle at a particular section of the test?</li>
+</ul>
+<p>For example, when conducting research on an onboarding process, we observed a trend that users consistently found a section of the onboarding confusing and rated their confidence level of it poorly. As shown in the image below, some of us thought of shortening the instruction copy further to make it simpler for users, while others had the idea of adding button icons into the instructions. The latter approach proved to be more effective after implementing it in subsequent user tests.</p>
+<p><img src="../images/blogposts/analysing-user-research/Blog_Example.png" /></p>
+<p><strong>Adding button icons</strong> (right) to onboarding instructions proved more effective than <strong>shortening instruction copy</strong> (left)</p>
+<p>With a more holistic perspective on how the test session went, the research team can then log the consolidated research notes for that session, highlighting these key insights. Some useful resources used by us at Holmusk are:</p>
+<ol type="1">
+<li>Notion (general collaborative note-taking and organising of research information)</li>
+<li><a href="http://usertesting.com">UserTesting.com</a> (consolidates research notes for you when conducting unmoderated interviews on the platform - also has a cool smart-tag function that recognises user emotion!)</li>
+<li>Record your user test sessions! (you can revisit the recordings to make sure nothing was left out in your research notes)</li>
+</ol>
+<h2 id="after-one-research-iteration">04 After one research iteration</h2>
+<p>Research iterations are ways for you to continually improve your test based on your current findings. For example, we could define one research iteration to be five user tests. Thus, after conducting five tests, we can gather all research notes that were consolidated and perform another round of analysis:</p>
+<ul>
+<li><p>Rank and organise research notes according to the frequency which comments were made by test participants, as well as according to the relevance (extent which it directly addresses/relates back to the research objective) of their insights. The chart below shows a mental model of how data from user tests can be sorted.</p>
+<p><img src="../images/blogposts/analysing-user-research/Screenshot_2021-07-23_at_1.12.48_PM.png" /></p>
+<p><em>An example of how to rank and organise research notes</em></p></li>
+<li><p>The most commonly occurring comments can indicate high-priority polishes/fixes for researchers to implement for the next iteration, while high relevance insights can trigger more critical thinking in researchers regarding the research objective.</p></li>
+</ul>
+<p>Thus, we can incorporate the main insights (top right quadrant in the graph above) via making changes to the test flow or prototype for the next iteration of user tests. It would be ideal to have new participants for the next iteration to prevent biases in their responses.</p>
+<h2 id="consolidating-insights">05 Consolidating insights</h2>
+<p>Finally, when we’ve completed the desired amount of research for our study, it’s time to report our findings to relevant stakeholders.</p>
+<h3 id="here-are-3-key-tips-to-delivering-your-insights">Here are 3 key tips to delivering your insights:</h3>
+<p><img src="../images/blogposts/analysing-user-research/Untitled.png" /></p>
+<ol type="1">
+<li>Always relate back to the research objective - Why did you conduct the study and how does it affect the product?</li>
+<li>Convert insights to actionables
+<ul>
+<li>Some insights that relate to users’ dissatisfaction or suggestions can be reported as action items to improve a specific part of the product</li>
+<li>Review the feasibility of these actionables with respect to the production timeline</li>
+<li>Categorise actionables as <strong>current/possible</strong> improvements to be discussed and reviewed, vs <strong>future/potential</strong> ideas that can be logged and explored later in the timeline</li>
+</ul></li>
+<li>Understand your stakeholders - who are you reporting the research to?
+<ul>
+<li>What are they expecting out of your research?</li>
+<li>What is the level of detail you want to achieve? (e.g. high-level information vs technical details)</li>
+<li>Prioritise information that relates to your stakeholders (it’s even better if you keep this in mind throughout the entire research process!)</li>
+</ul></li>
+</ol>
+<p>As they say, UX research is an ever-changing process, thus, all the more should we adapt it to improving our research analysis workflow. In fact, there are many <a href="http://designthinkmakebreakrepeat.com/">more methodologies</a> than the user test covered in this blogpost, which can used for different research goals. There’s so much more we can uncover beyond singular verbal and written feedback. These methods of analysis allow us to discover patterns and trends - as though we’re slowly uncovering the blueprint to spark joy in our users and enable them to make real-world impact with our product.</p>
+          </div>
+        </div>
+      </div>
+    </article>
+
+</div>
+
+   </div>
+ </div>
+
+ <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-10 col-md-12 mx-auto">
+        <p class="copyright text-muted">©2019 Holmusk</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+</body>
+</html>

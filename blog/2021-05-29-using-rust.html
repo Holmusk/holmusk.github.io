@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Holmusk Tech Blog">
+  <meta name="keywords" content="Haskell, Elm, Dart, Functional progarmming, FP">
+  <meta name="author" content="Holmusk" />
+  <title>Holmusk | Building a reliable and tRUSTworthy web service 🦀</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="../css/main.css">
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8=" crossorigin="anonymous">
+  </script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg fixed-top" id="mainNav">
+    <div class="container">
+        <a class="navbar-brand" href="../index.html">
+            <img src="../images/holmusk_product_blog.svg" alt="Holmusk Tech Blog">
+        </a>
+        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+          Menu
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="../index.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../blog.html">Blog Posts</a>
+            </li>
+          </ul>
+        </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+ <div class="container" id="page-content">
+   <div class="row">
+     <div class="container">
+    <div class="row">
+        <div class="col-lg-10 col-md-12 mx-auto">
+            <h1 class="title">Building a reliable and tRUSTworthy web service 🦀</h1>
+            <div class="post-context">
+              <div>
+                <span class="author"> Rohan </span>
+                
+                    <span><a class="github" href="https://github.com/RohanGautam/">@RohanGautam</a></span>
+                
+              </div>
+
+              <div class="date">May 29, 2021</div>
+            </div>
+            <div class="tag-list">
+              
+              <span><a class="tag" href="../tags/rust.html">rust</a></span>
+              
+            </div>
+        </div>
+    </div>
+
+    <article>
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-10 col-md-12 mx-auto">
+            <div class="toc"><ul>
+<li><a href="#product-intro">Product intro</a></li>
+<li><a href="#lifecycle-of-an-image">Lifecycle of an image</a></li>
+<li><a href="#stack-decisions-rust-and-haskell">Stack decisions: Rust and Haskell</a></li>
+<li><a href="#introduction-and-pitfalls-of-the-existing-architecture">Introduction and pitfalls of the existing architecture</a></li>
+<li><a href="#the-new-architecture">The new architecture</a><ul>
+<li><a href="#rust-webserver-internals">Rust webserver internals</a><ul>
+<li><a href="#types-of-channels-used">Types of channels used</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#takeaways">Takeaways</a></li>
+</ul></div>
+            <h2 id="product-intro">Product intro</h2>
+<p><a href="https://www.fooddx.com/">FoodDX</a> is a service which helps people get insights on how to improve their diet with the help from our proprietary AI technology and personalized feedback from our nutrition experts. In its current stage, it helps score images of food taken through an app, and gives it a score from 1-5, and also provides personalized tips for the food.</p>
+<p>It’s a big project with a lot of components - the AI models, the app, and the backend infrastructure which handles it all. We’ll be taking a look at the backend in this article.</p>
+<h2 id="lifecycle-of-an-image">Lifecycle of an image</h2>
+<p>Before we dive into the infrastructure, it would help to take a look at what an image goes through once it enters our system.</p>
+<ul>
+<li>The image is assigned a UUID.</li>
+<li>The image is uploaded to an AWS <code>s3</code> bucket.</li>
+<li>The image is then downloaded, preprocessed, run through our models, and a food tip is generated for the image.</li>
+<li>The food tip, inference results and the image hash <a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> form the final response.</li>
+</ul>
+<h2 id="stack-decisions-rust-and-haskell">Stack decisions: Rust and Haskell</h2>
+<p>Haskell is used for the client facing API, and it’s used for other ad-hoc tasks such as reading/writing to a database among others.</p>
+<p>Rust is used for image preprocessing, model inference and sending the results back. Sending of results was done differently in the two approaches outlined below. Rust was chosen for its high efficiency, small executable footprint, and absence of a garbage collector. It also had strong type system, speed &amp; relatively actively maintained Tensorflow (client) library.</p>
+<h1 id="introduction-and-pitfalls-of-the-existing-architecture">Introduction and pitfalls of the existing architecture</h1>
+<p><img src="../images/blogposts/v2-arch-diagram.png" /> The internal organization of the rust service in this architecture is outlined above. There were 3 main parts, all running concurrently on 3 separate tokio<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> runtimes - namely polling SQS, preprocessing and running inference on the images, and cleanup tasks (like writing results to redis, notifying SQS that the image can now be taken off the queue, etc).</p>
+<p>The external processes related to this architecture are outlined below. <img src="../images/blogposts/v2-external-arch-diagram.png" /></p>
+<p>The main gripe we had was in the <code>S3</code> to <code>SQS</code><a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> upload event notification. In our benchmarks, it was <a href="https://github.com/Holmusk/aws_benchmarks/tree/master/s3_event_to_sqs">very slow</a>, and we aim for the service to have a very low latency, with the goal being that every image that comes into the system should be scored/rated in <strong>under 1 second</strong> . Because of the way the system was designed, this meant that we’d need a pretty big makeover on the rust side, and some tweaks on the haskell side if we were to get closer to meeting our performance goals. This is also mentioned in the <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/NotificationHowTo.html">AWS docs</a>, where they state that <code>Typically, event notifications are delivered in seconds but can sometimes take a minute or longer</code>.</p>
+<h1 id="the-new-architecture">The new architecture</h1>
+<p>As mentioned above, the main reason for redesigning the architecture was to avoid the <code>S3</code> to <code>SQS</code> upload event notification as low latency is of high priority in this project. In the process, we found out that we actually simplified it, by removing unnecessary moving parts.</p>
+<p>Internally, the Rust service now also has a <a href="https://developer.mozilla.org/en-US/docs/Learn/Common_questions/What_is_a_web_server">webserver</a>. The client facing API (written in Haskell) proxies the HTTP requests it receives to the Rust server via a load balancer (AWS ELB). In this version of the architecture, we completely eliminate the use of a queue (<code>SQS</code>).</p>
+<h2 id="rust-webserver-internals">Rust webserver internals</h2>
+<p><img src="../images/blogposts/v3-arch-diagram.png" /></p>
+<p>We have chosen to use <a href="https://github.com/seanmonstar/warp"><code>warp</code></a><a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a> for the web server implementation in Rust.</p>
+<p>We have 3 tokio runtimes running simultaneous and somewhat independently of one another. These tokio runtimes communicate with each other using messages that are passed between them using bounded <a href="https://doc.rust-lang.org/book/ch16-02-message-passing.html">channels</a>. The “messages” we pass are custom <a href="https://doc.rust-lang.org/book/ch05-01-defining-structs.html"><code>Structs</code></a> we define for communication.</p>
+<p>Finally, because each request handler needs a result for its own image, the handler initially creates a <a href="https://tokio-rs.github.io/tokio/doc/tokio/sync/oneshot/index.html">oneshot</a> for receiving it’s results and this is passed along as metadata for the image. Once the image is inferred in a batch, the data is sent back to the image’s corresponding request handler so the results can be returned.</p>
+<p>As mentioned, we have completely avoided the use of SQS in this architecture. The external architecture around the rust service now looks like this: <img src="../images/blogposts/v3-external-arch-diagram.png" /></p>
+<h3 id="types-of-channels-used">Types of channels used</h3>
+<p>We use a couple of different channels for communication with different parts within the rust service. Check out <a href="https://doc.rust-lang.org/book/ch16-02-message-passing.html">this chapter</a> from the rust book for some more context on how they work!</p>
+<ul>
+<li><a href="https://doc.rust-lang.org/std/sync/mpsc/index.html"><code>std::sync::mpsc</code></a> : This is the only <code>sync</code> channel we use (rest are <code>async</code>). We use it to communicate to the <code>main</code> function that the models have been loaded. Since the <code>main</code> function is <code>sync</code>, we use the builtin synchronous channel rust provides.</li>
+</ul>
+<p>The other channels are <code>async</code>, meaning they wouldn’t block the runtime while <code>await</code>ing for a result. They instead would pass the control back to the async runtime (<code>tokio</code> in this case) and other tasks can be performed. The <code>async</code> channels are :</p>
+<ul>
+<li><a href="https://docs.rs/tokio/1.5.0/tokio/sync/oneshot/index.html"><code>tokio::sync::oneshot</code></a> : A oneshot is a channel which has only one reciever and one sender. The handler keeps the <code>Receiver</code> and sends its <code>Sender</code> around the program. Once the processing is finished (a batch of requests are processed at a time) the oneshot is used to send the result back to the handler of that specific request, maintaining the one-one mapping of the request and response that’s required.</li>
+<li><a href="https://docs.rs/async-channel/1.6.1/async_channel/fn.bounded.html"><code>async_channel::bounded</code></a>, which we use like a <em>MPSC</em> (Multi Producer, Single Consumer) channel to pass data between many response handlers to the batching task, for example. It’s used for communication between tasks. We’d like to use <code>tokio::sync::mpsc</code>, but :
+<ul>
+<li>Tokio <code>1.x</code> <a href="https://github.com/tokio-rs/tokio/pull/3263">removed <code>try_recv</code></a> due to some errors. They plan on <a href="https://github.com/tokio-rs/tokio/issues/3350">adding it back</a> later. This was a function we had to use.</li>
+<li><code>async-channel</code> is <a href="https://github.com/tokio-rs/tokio/issues/3350#issuecomment-773952897">recommended</a> as an alternative for the time being.</li>
+</ul></li>
+</ul>
+<h1 id="takeaways">Takeaways</h1>
+<p>These are our takeaways for using Rust in this project!</p>
+<p>Pros :</p>
+<ul>
+<li>The Rust community is awesome! A lot of people mention that this is a big strength of the ecosystem, and we fully agree. We found the Rust community to be very knowledgeable, responsive, and friendly when we asked questions on online forums like Reddit and Stackoverflow.</li>
+<li>The Rust book is a great resource. It has a lot of examples and explanations for Rust fundamentals, as well a great insight into multi-threading and concurrency.</li>
+<li>It’s a little harder to refactor and make huge changes compared to other languages because of Rust’s ownership system, but it’s a worthwhile tradeoff for a critical service in our opinion, as it makes the code more robust. It’s also easier to reason with ownership rules once you get the hang of it, compared to compiler magic that some other languages have.</li>
+</ul>
+<p>Cons :</p>
+<ul>
+<li>We faced some issues with key libraries not being well maintained. For example, we use AWS, and thus were using the <a href="https://github.com/rusoto/rusoto"><code>rusoto</code></a> library. Because this library had a dependency with Tokio <code>0.1.15</code>, we couldn’t migrate to Tokio <code>1.x</code> for a really long time. We were able to do it later when <code>rusoto</code> was updated, but we still expected such a critical library to stay up to date. Things are looking good however, with AWS announcing that they are <a href="https://aws.amazon.com/blogs/developer/a-new-aws-sdk-for-rust-alpha-launch/">working on an official SDK for Rust</a>.</li>
+<li>It’s always a risk upgrading a lot of dependencies in the current state of rust, as you can almost always expect that some inter-dependency compatibility breaks. This was especially magnified in a large project such as this one.</li>
+</ul>
+<p>We also have some general takeaways and gotchas we encountered in this project:</p>
+<ul>
+<li><em>Tensorflow</em> : We found that that the prebuilt tensorflow <code>C</code> bindings were not built/available for a large variety of GPU instances we use in AWS. This proved to be a little tedious to fix, as we had to manually compile tensorflow for the systems we use in production, without which we experienced slow inference times and model loading.</li>
+<li>It’s pretty hard and largely undocumented how to run ML model inference <strong>in parallel</strong> on GPUs, and we still have not fully explored that option.</li>
+</ul>
+<section class="footnotes" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>The image hash is calculated and used to check for duplicates.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p><a href="https://tokio.rs/">Tokio</a> is an asynchronous runtime for the Rust programming language. A lot of languages have a built in async runtime. Rust allows you to choose whichever runtime you require. Tokio is the most popular option in the Rust ecosystem. Check out <a href="https://rust-lang.github.io/async-book/08_ecosystem/00_chapter.html">this resource</a> for more insight into async and the rust async ecosystem!<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p>Amazon <a href="https://aws.amazon.com/sqs/"><code>SQS</code></a> is a fully managed queue which we were using to distribute messages to different Rust service instances.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4" role="doc-endnote"><p>We used <a href="https://github.com/seanmonstar/warp"><code>warp</code></a> because of its excellent tokio interoperability and flexible <a href="https://docs.rs/warp/0.1.0/warp/trait.Filter.html"><code>Filter</code></a> system.<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+          </div>
+        </div>
+      </div>
+    </article>
+
+</div>
+
+   </div>
+ </div>
+
+ <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-10 col-md-12 mx-auto">
+        <p class="copyright text-muted">©2019 Holmusk</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+</body>
+</html>
