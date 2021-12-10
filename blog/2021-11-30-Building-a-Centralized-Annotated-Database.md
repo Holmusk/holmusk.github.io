@@ -1,8 +1,8 @@
 ---
 title: Building a Centralized Annotated Database
 author: Punya Modi
-description: (tba)
-tags: (tba)
+description: What is the need to create a centralized annotated database? what advantages can it pose ?
+tags: Devops
 ---
 
 # **Value of Creating a Standardized Annotated Database**
