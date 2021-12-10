@@ -18,7 +18,7 @@ FoodDX is a product from Holmusk that is meant to transform the way consumers th
 
 In the current existing situation, we have a plethora of sources as summarized in the flow diagram below  -
 
-(image to be added)
+![](/images/blogposts/ML_datapipeline_sources.png)
 
 
 Considering the different sources that we have, we decided to classify the sources into two types -
@@ -49,7 +49,7 @@ Considering the fact that we have two very different type of data sources, it is
 
 
 # Conclusion
-
+The value of creating a centralized annotated database for any project especially for a Machine learning project cannot be understated. It can help streamline work while also allowing the project team to provision for the future. While creating a centralized pipeline is important but after creating it we also need to transfer all the existing data into the new pipeline.  
 
 
 ---
