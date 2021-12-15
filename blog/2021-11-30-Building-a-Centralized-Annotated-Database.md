@@ -1,7 +1,7 @@
 ---
 title: Building a Centralized Annotated Database
 author: Punya Modi
-description: What is the need to create a centralized annotated database? What advantages can it pose?
+description: What is the need to create a centralized annotated database? What advantages can it offer?
 tags: Machine Learning =
 ---
 
