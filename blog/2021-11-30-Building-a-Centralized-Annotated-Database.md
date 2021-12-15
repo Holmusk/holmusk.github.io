@@ -2,17 +2,24 @@
 title: Building a Centralized Annotated Database
 author: Punya Modi
 description: What is the need to create a centralized annotated database? What advantages can it offer?
-tags: Machine Learning =
+tags: Machine Learning
 ---
 
-# **Value of Creating a Standardized Annotated Database**
+# **Value of creating a standardized annotated database**
 
 As I was learning about ML and getting introduced to the world of Machine Learning one of the more memorable statements I heard was that “Machine Learning is, after all, data driven AI, and your model will be only as good or as bad as the data you have”. ML depends heavily on data, without data, it is impossible for an “AI” to learn. It is the most crucial aspect that makes algorithm training possible… No matter how great the AI team is or the size of the data set, if your data set is not good enough, the entire project will fail. While gathering a sizable amount of data is important, it is only the first step of the entire process, every project requires a sizable amount of time and effort to restructure the data and classify and label it. This is especially true for datasets used to present a realistic vision of our world. With the need for data so clear, the need arises for a mechanism to store all of this data in a fashion that doesn't compromise on the  work that was already done to tailor the data to the needs of the project.
 
 
 # FoodDX
 
-FoodDX is a product from Holmusk that is meant to transform the way consumers think and feel about food, it gives real-time feedback on your meals, FoodDX allows users to upload photos of their meal for real-time nutrition scores and food tips. This is enabled via AI food scoring that leverages the companies real world dataset of over 10,000 + images.
+FoodDX is a product from Holmusk that is meant to transform the way consumers think and feel about food. It gives real-time feedback on your meals. FoodDX allows users to upload photos of their meal for real-time nutrition scores and food tips. This is enabled via AI food scoring that leverages real world dataset of over 100,000+ images. FoodDX technology is based on behavioural modification strategies. The platform uses clinically proven techniques to help manage your diet and lead a healthier life by offering the following solutions -
+
+* Real-time classification based on nutritional and health value, on a proprietary scoring system developed by Holmusk
+
+* Engaging tips on how to improve your diet
+
+* Meal recommendations
+
 
 This was made possible by one of Holmusks previous products Glycoleap which was a product that aimed at helping diabetic patients track their diet and manage their health by letting them get an expert nutritionists advice simply by clicking a photo, and the uploading it to the app, which the nutritionists then graded. The data from this gave us a great boost for FoodDX as it enables us to have access to trusted, high quality data stored in a database. We used this initial data to have in order to train the model, but we also added in completely different data separate from the initial Glycoleap data for the cross verification data, however this was mostly manages via Dropbox where the coaches were given images via Dropbox and similarly shared their scores on the same platform. When FoodDX was up and running, in order to better organize the system, the model rating and all relevant information was stored in a database and similarly, an annotation platform was created for the coaches via retool to accurately score the image, the food type, and also help with maintaining the data, as the coach data was saved in a separate datatable.
 
