@@ -3,7 +3,6 @@ module TechBlog.Blog
        , createBlog
        , createTags
        , createMain
-
        , compilePosts
        ) where
 
@@ -11,8 +10,9 @@ import Hakyll (Pattern, Rules, applyAsTemplate, buildTags, compile, constField, 
                defaultContext, defaultHakyllReaderOptions, defaultHakyllWriterOptions, fromCapture,
                getResourceString, getTags, idRoute, itemBody, itemIdentifier, listField, loadAll,
                loadAndApplyTemplate, makeItem, match, pandocCompiler, recentFirst, relativizeUrls,
-               renderPandocWith, route, setExtension, tagsRules)
+               renderPandocWith, route, setExtension, tagsRules, Compiler)
 import Text.Pandoc.Options (WriterOptions (..))
+import Text.Pandoc ( compileTemplate, Template )
 
 import TechBlog.Context (pageCtx, postCtx, postCtxWithTags)
 import TechBlog.Project (mkProjectCtx)
@@ -39,8 +39,9 @@ matchBlogPosts :: Rules ()
 matchBlogPosts = match "blog/*" $ do
     route $ setExtension "html"
     compile $ do
-        i   <- getResourceString
-        pandoc <- renderPandocWith defaultHakyllReaderOptions withToc i
+        i <- getResourceString
+        writerOptions <- initWriterOptions <$> compileTocTemplate
+        pandoc <- renderPandocWith defaultHakyllReaderOptions writerOptions i
         let toc = itemBody pandoc
         tgs <- getTags (itemIdentifier i)
         let postTagsCtx = postCtxWithTags tgs
@@ -80,10 +81,13 @@ compilePosts title ptrn = do
             >>= loadAndApplyTemplate "templates/default.html" ctx
             >>= relativizeUrls
 
--- | Compose TOC from the markdown.
-withToc :: WriterOptions
-withToc = defaultHakyllWriterOptions
+initWriterOptions :: Template Text -> WriterOptions
+initWriterOptions template = defaultHakyllWriterOptions
     { writerTableOfContents = True
     , writerTOCDepth = 4
-    , writerTemplate = Just "$toc$"
+    , writerTemplate = Just template
     }
+
+compileTocTemplate :: Compiler (Template Text)
+compileTocTemplate =
+    runIdentity $ either fail pure <$> compileTemplate "" "$toc$"
