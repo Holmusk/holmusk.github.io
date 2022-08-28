@@ -6,33 +6,37 @@ module TechBlog.Blog
        , compilePosts
        ) where
 
-import Hakyll (Pattern, Rules, applyAsTemplate, buildTags, compile, constField, create,
+import Hakyll (Compiler, Pattern, Rules, applyAsTemplate, buildTags, compile, constField, create,
                defaultContext, defaultHakyllReaderOptions, defaultHakyllWriterOptions, fromCapture,
                getResourceString, getTags, idRoute, itemBody, itemIdentifier, listField, loadAll,
                loadAndApplyTemplate, makeItem, match, pandocCompiler, recentFirst, relativizeUrls,
-               renderPandocWith, route, setExtension, tagsRules, Compiler)
+               renderPandocWith, route, setExtension, tagsRules)
 import Text.Pandoc.Options (WriterOptions (..))
-import Text.Pandoc ( compileTemplate, Template )
+import Text.Pandoc (Template, compileTemplate)
+import Text.Pandoc.Highlighting (Style, pygments, styleToCss)
 
 import TechBlog.Context (pageCtx, postCtx, postCtxWithTags)
 import TechBlog.Project (mkProjectCtx)
 
 
 createMain :: Rules ()
-createMain = create ["index.html"] $ do
-    route idRoute
-    compile $ do
-        posts <- recentFirst =<< loadAll "blog/*"
-        let ctx = listField "posts" postCtx (pure $ take 3 posts)
-               <> defaultContext
-               <> mkProjectCtx
-               <> constField "page" "Main"
-        makeItem ""
-            >>= applyAsTemplate ctx
-            >>= loadAndApplyTemplate "templates/main.html" ctx
-            >>= loadAndApplyTemplate "templates/default_with_banner.html" ctx
-            >>= relativizeUrls
-
+createMain = do
+    create ["index.html"] $ do
+        route idRoute
+        compile $ do
+            posts <- recentFirst =<< loadAll "blog/*"
+            let ctx = listField "posts" postCtx (pure $ take 3 posts)
+                    <> defaultContext
+                    <> mkProjectCtx
+                    <> constField "page" "Main"
+            makeItem ""
+                >>= applyAsTemplate ctx
+                >>= loadAndApplyTemplate "templates/main.html" ctx
+                >>= loadAndApplyTemplate "templates/default_with_banner.html" ctx
+                >>= relativizeUrls
+    create ["css/syntax.css"] $ do
+        route idRoute
+        compile . makeItem $ styleToCss codeStyle
 
 -- | Creates each post page.
 matchBlogPosts :: Rules ()
@@ -86,8 +90,12 @@ initWriterOptions template = defaultHakyllWriterOptions
     { writerTableOfContents = True
     , writerTOCDepth = 4
     , writerTemplate = Just template
+    , writerHighlightStyle = Just codeStyle
     }
 
 compileTocTemplate :: Compiler (Template Text)
 compileTocTemplate =
     runIdentity $ either fail pure <$> compileTemplate "" "$toc$"
+
+codeStyle :: Style
+codeStyle = pygments
