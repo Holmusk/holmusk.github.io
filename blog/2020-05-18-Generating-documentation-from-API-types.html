@@ -11,6 +11,7 @@
   <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" crossorigin="anonymous">
   <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/syntax.css" />
   <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8=" crossorigin="anonymous">
   </script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" crossorigin="anonymous"></script>
@@ -70,22 +71,26 @@
           <div class="col-lg-10 col-md-12 mx-auto">
             <div class="toc"><ul>
 <li><a href="#context">Context</a></li>
-<li><a href="#requirements">Requirements</a><ul>
+<li><a href="#requirements">Requirements</a>
+<ul>
 <li><a href="#supporting-various-output-formats">Supporting various output formats</a></li>
 <li><a href="#including-format-types-in-our-documentation">Including format types in our documentation</a></li>
 <li><a href="#automatically-generating-api-endpoints-documentation">Automatically generating API endpoints documentation</a></li>
 </ul></li>
-<li><a href="#implementation">Implementation</a><ul>
+<li><a href="#implementation">Implementation</a>
+<ul>
 <li><a href="#overview">Overview</a></li>
 </ul></li>
-<li><a href="#parsing-the-api-type">Parsing the API type</a><ul>
+<li><a href="#parsing-the-api-type">Parsing the API type</a>
+<ul>
 <li><a href="#flattening-the-api-type">Flattening the API type</a></li>
 <li><a href="#the-intermediate-structure">The intermediate structure</a></li>
 <li><a href="#converting-the-api-type-to-a-value">Converting the API type to a value</a></li>
 </ul></li>
 <li><a href="#rendering-the-intermediate-structure">Rendering the intermediate structure</a></li>
 <li><a href="#usage">Usage</a></li>
-<li><a href="#reflections">Reflections</a><ul>
+<li><a href="#reflections">Reflections</a>
+<ul>
 <li><a href="#what-can-be-improved">What can be improved?</a></li>
 <li><a href="#trade-offs">Trade offs</a></li>
 <li><a href="#pros">Pros</a></li>
@@ -93,21 +98,44 @@
 <li><a href="#other-thoughts">Other thoughts</a></li>
 </ul></div>
             <h2 id="context">Context</h2>
-<p>As an Intern at Holmusk, I have been involved in projects which improve the quality of life for our programmers. The latest project I have worked on, servant-docs-simple allowed me to work with exciting things relating to type-level programming.</p>
-<p>Our backend is currently built in Haskell, but those who need to use the APIs are Elm and Flutter developers. Hence, we should provide documentation of APIs which is readable by everyone.</p>
-<p>Since our API uses <a href="https://hackage.haskell.org/package/servant"><span class="underline">Servant</span></a>, we attempted to use <a href="https://hackage.haskell.org/package/servant-docs"><span class="underline">servant-docs</span></a> to document our API. However, there were differing use cases so we created <a href="https://hackage.haskell.org/package/servant-docs-simple"><span class="underline">servant-docs-simple</span></a> to handle these.</p>
+<p>As an Intern at Holmusk, I have been involved in projects which improve
+the quality of life for our programmers. The latest project I have
+worked on, servant-docs-simple allowed me to work with exciting things
+relating to type-level programming.</p>
+<p>Our backend is currently built in Haskell, but those who need to use the
+APIs are Elm and Flutter developers. Hence, we should provide
+documentation of APIs which is readable by everyone.</p>
+<p>Since our API uses
+<a href="https://hackage.haskell.org/package/servant"><u>Servant</u></a>, we
+attempted to use
+<a href="https://hackage.haskell.org/package/servant-docs"><u>servant-docs</u></a>
+to document our API. However, there were differing use cases so we
+created
+<a href="https://hackage.haskell.org/package/servant-docs-simple"><u>servant-docs-simple</u></a>
+to handle these.</p>
 <h2 id="requirements">Requirements</h2>
 <h3 id="supporting-various-output-formats">Supporting various output formats</h3>
-<p>We want to output a variety of formats. Currently we support PlainText, JSON and PrettyPrint output formats.</p>
+<p>We want to output a variety of formats. Currently we support PlainText,
+JSON and PrettyPrint output formats.</p>
 <p>These can be used in a variety of ways:</p>
 <ul>
-<li><p><code>JSON</code> can be served from an endpoint, allowing developers to query API endpoints and look up their documentation.</p></li>
-<li><p><code>PlainText</code> documentation allows people to read through the whole documentation in PlainText.</p></li>
-<li><p><code>PrettyPrint</code> allows people to further format text documentation to their liking.</p></li>
+<li><p><code>JSON</code> can be served from an endpoint, allowing developers to query
+API endpoints and look up their documentation.</p></li>
+<li><p><code>PlainText</code> documentation allows people to read through the whole
+documentation in PlainText.</p></li>
+<li><p><code>PrettyPrint</code> allows people to further format text documentation to
+their liking.</p></li>
 </ul>
 <h3 id="including-format-types-in-our-documentation">Including format types in our documentation</h3>
-<p>A <em>format type</em> is a Haskell data type. This type can be serialized to other forms, depending on instances which have been defined for it. For instance, if it has a JSON instance, it can be serialized to and from JSON.</p>
-<p>Each endpoint accepts certain <em>format type(s)</em>. These format types are specified in the endpoint’s type definition, as part of its parameters. For instance, in its <code>RequestBody</code> parameter, we could say it accepts the CreateUser type and in the <code>Response</code> parameter we could say it returns the <code>UserData</code> type.</p>
+<p>A <em>format type</em> is a Haskell data type. This type can be serialized to
+other forms, depending on instances which have been defined for it. For
+instance, if it has a JSON instance, it can be serialized to and from
+JSON.</p>
+<p>Each endpoint accepts certain <em>format type(s)</em>. These format types are
+specified in the endpoint’s type definition, as part of its parameters.
+For instance, in its <code>RequestBody</code> parameter, we could say it accepts the
+CreateUser type and in the <code>Response</code> parameter we could say it returns
+the <code>UserData</code> type.</p>
 <hr />
 <p><em>Format type in documentation</em></p>
 <pre><code>/api/user/
@@ -119,7 +147,11 @@ Response:
   Format: UserData
   ContentType: ...</code></pre>
 <hr />
-<p>We can use these <em>format types</em> to search haskell source files to look up their type definitions. We can also look up our own generated files from these types. For example if a <code>users.proto</code> file is generated for the <code>UserData</code> type, we can search through that file to find the <code>protobuf</code> definition.</p>
+<p>We can use these <em>format types</em> to search haskell source files to look up
+their type definitions. We can also look up our own generated files from
+these types. For example if a <code>users.proto</code> file is generated for the
+<code>UserData</code> type, we can search through that file to find the <code>protobuf</code>
+definition.</p>
 <hr />
 <p><em>Searching for the UserData type in users.proto</em></p>
 <pre><code>message UserData {
@@ -136,9 +168,15 @@ message UserCreate {
 .
 </code></pre>
 <hr />
-<p>In the documentation generated by servant-docs, the format types mentioned above <code>(User, Message)</code> are not included. They provide examples instead, which is a different usecase, since we want to use these <em>format types</em> to search our internal source files.</p>
+<p>In the documentation generated by servant-docs, the format types
+mentioned above <code>(User, Message)</code> are not included. They provide examples
+instead, which is a different usecase, since we want to use these
+<em>format types</em> to search our internal source files.</p>
 <h3 id="automatically-generating-api-endpoints-documentation">Automatically generating API endpoints documentation</h3>
-<p>servant-docs generates documentation only if <em>format types</em> have implemented the necessary instances. This is good for extensive documentation of the endpoints as users have to write examples for each <em>format type</em> they introduce.</p>
+<p>servant-docs generates documentation only if <em>format types</em> have
+implemented the necessary instances. This is good for extensive
+documentation of the endpoints as users have to write examples for each
+<em>format type</em> they introduce.</p>
 <hr />
 <p><em>Instances for format types</em></p>
 <pre><code>instance ToSample User where
@@ -147,7 +185,9 @@ message UserCreate {
 instance ToSample Message where
     toSamples _ = &lt;some example&gt;</code></pre>
 <hr />
-<p>However, in our case, we want to document our endpoints automatically, without having to write extra instances for each <em>format type</em> we introduce.</p>
+<p>However, in our case, we want to document our endpoints automatically,
+without having to write extra instances for each <em>format type</em> we
+introduce.</p>
 <h2 id="implementation">Implementation</h2>
 <p><em>Note: Some code snippets below are simplified for understanding. They may be approximations of the actual implementations.</em></p>
 <h3 id="overview">Overview</h3>
@@ -158,7 +198,9 @@ instance ToSample Message where
 </ol>
 <h2 id="parsing-the-api-type">Parsing the API type</h2>
 <h3 id="flattening-the-api-type">Flattening the API type</h3>
-<p>We observe that the Servant API type is built by chaining together types. You can observe that <code>:&gt;</code> and <code>:&lt;|&gt;</code> serve as operators which introduce a tree-like structure to the API type.</p>
+<p>We observe that the Servant API type is built by chaining together
+types. You can observe that <code>:&gt;</code> and <code>:&lt;|&gt;</code> serve as operators which
+introduce a tree-like structure to the API type.</p>
 <p><code>:&gt;</code> extends the branch and <code>:&lt;|&gt;</code> forks multiple branches.</p>
 <hr />
 <p><em>Sample API type</em></p>
@@ -167,18 +209,27 @@ instance ToSample Message where
                     )
 </code></pre>
 <hr />
-<p>Since a list is easier to parse than a tree, we can flatten this structure into a type-level list of endpoints. To do so, we use the Endpoints type family, applying it to the API type. For those unfamiliar with type families, you can think of them as functions which act on types.</p>
+<p>Since a list is easier to parse than a tree, we can flatten this
+structure into a type-level list of endpoints. To do so, we use the
+Endpoints type family, applying it to the API type. For those unfamiliar
+with type families, you can think of them as functions which act on
+types.</p>
 <hr />
 <p><em>Flattened API type after applying the Endpoints type family</em></p>
 <pre><code>Endpoints @API = '[ Route :&gt; Request :&gt; Response -- Endpt 1
                   , Route :&gt; Route2 :&gt; Request2 :&gt; Response2 -- Endpt 2
                   ]</code></pre>
 <hr />
-<p>The result is a type-level list of endpoints, which we can parse by pattern matching on <code>':</code> (for separating endpoints) and <code>:&gt;</code> (for separating parts of each endpoint). These operators <code>':</code> and <code>:&gt;</code> are similar to the cons operator <code>:</code> for lists, but on the type-level.</p>
+<p>The result is a type-level list of endpoints, which we can parse by
+pattern matching on <code>':</code> (for separating endpoints) and <code>:&gt;</code> (for
+separating parts of each endpoint). These operators <code>':</code> and <code>:&gt;</code> are
+similar to the cons operator <code>:</code> for lists, but on the type-level.</p>
 <h3 id="the-intermediate-structure">The intermediate structure</h3>
 <p>In the documentation, certain fields should come before others.</p>
-<p>For example, the <code>route</code> of an endpoint should come before its <code>Request</code> or <code>Response</code> parameters. This allows users to easily find the route they need and access the relevant information for that route.</p>
-<p>Hence structure we parse to should preserve the <strong>ordering</strong> of fields for each endpoint.</p>
+<p>For example, the <code>route</code> of an endpoint should come before its <code>Request</code> or <code>Response</code> parameters.
+This allows users to easily find the route they need and access the relevant information for that route.</p>
+<p>Hence structure we parse to should preserve the <strong>ordering</strong> of fields for
+each endpoint.</p>
 <hr />
 <p><em>When parsing each endpoint, we want this ordering</em></p>
 <pre><code>Route: ...
@@ -190,15 +241,22 @@ Response: ...</code></pre>
 Route: ...
 Request: ...</code></pre>
 <hr />
-<p>Intuitively, the final structure should also permit us to use the route and its field names as keys, and their details as values. This is analogous to a <strong>JSON-like / map structure</strong> as shown below.</p>
+<p>Intuitively, the final structure should also permit us to use the route
+and its field names as keys, and their details as values. This is
+analogous to a <strong>JSON-like / map structure</strong> as shown below.</p>
 <hr />
-<p><em>“users/login”, “Response”, “Request”, “ContentType” are the keys below, bound by the (:) to their values.</em></p>
+<p><em>“users/login”, “Response”, “Request”, “ContentType” are the keys below,
+bound by the (:) to their values.</em></p>
 <pre><code>users/login/ : {
     Response: { ContentType: &lt;value&gt; }
     Request: { ... }
 }</code></pre>
 <hr />
-<p>Hence, this is the Haskell type we want our API documentation to have. Notice the <a href="https://hackage.haskell.org/package/ordered-containers"><span class="underline">OMap</span></a> structure used. This gives us the 2 properties we need, <strong>ordered key-value pairs</strong> and a <strong>map structure</strong>.</p>
+<p>Hence, this is the Haskell type we want our API documentation to have.
+Notice the
+<a href="https://hackage.haskell.org/package/ordered-containers"><u>OMap</u></a>
+structure used. This gives us the 2 properties we need, <strong>ordered
+key-value pairs</strong> and a <strong>map structure</strong>.</p>
 <hr />
 <p><em>ApiDocs type</em></p>
 <pre><code>import Data.Map.Ordered (OMap)
@@ -210,8 +268,11 @@ type Parameter = Text</code></pre>
 <hr />
 <p><br></p>
 <h3 id="converting-the-api-type-to-a-value">Converting the API type to a value</h3>
-<p>How do we convert the <strong>API type</strong> to a <strong>value</strong> of type <code>ApiDocs</code>? Can we have a function which takes in types, returning values? Don’t functions primarily take in values?</p>
-<p>To answer those questions, first, we recognize that our API type is built out of Servant types and type combinators.</p>
+<p>How do we convert the <strong>API type</strong> to a <strong>value</strong> of type <code>ApiDocs</code>? Can
+we have a function which takes in types, returning values? Don’t
+functions primarily take in values?</p>
+<p>To answer those questions, first, we recognize that our API type is
+built out of Servant types and type combinators.</p>
 <hr />
 <p><em>Examples of Servant types</em></p>
 <pre><code>-- Type representing request body
@@ -235,9 +296,13 @@ ReqBody '[()] () :&gt; Header &quot;&quot; ()</code></pre>
 -- the ReqBody type and the Post type
 type API = &quot;users&quot; :&gt; ReqBody '[()] () :&gt; Post '[()] ()</code></pre>
 <hr />
-<p>Inductively, if we can convert these types and type combinators to values, we can convert our <strong>API type</strong> to a <strong>value</strong>.</p>
-<p>Now, we need to think of a way to pattern match on types to get values. The way would be <strong>typeclasses</strong>!</p>
-<p>We can define different instances of a typeclass which match on different types. These instances can give us different values, so long as they conform to the definitions of that typeclass.</p>
+<p>Inductively, if we can convert these types and type combinators to
+values, we can convert our <strong>API type</strong> to a <strong>value</strong>.</p>
+<p>Now, we need to think of a way to pattern match on types to get values.
+The way would be <strong>typeclasses</strong>!</p>
+<p>We can define different instances of a typeclass which match on
+different types. These instances can give us different values, so long
+as they conform to the definitions of that typeclass.</p>
 <hr />
 <p><em>Example of transforming types to values using typeclasses</em></p>
 <pre><code>class HasAlphabet a where
@@ -262,9 +327,14 @@ instance HasAlphabet B where
 
 (toAlpha :: B) == &quot;B&quot;</code></pre>
 <hr />
-<p>From this, we now know how to parse different servant types and type combinators. We can create a typeclass, define instances for all Servant types and type combinators, then use that to parse them.</p>
-<p>With this knowledge, we can implement a typeclass that parses a single endpoint, since an endpoint is made up of servant types and combinators.</p>
-<p>We match on the :&gt; combinator and other types, converting them to <code>Parameter-Detail</code> pairs and inserting them into the <code>Details OMap</code>. We then return a <code>Route-Detail</code> pair.</p>
+<p>From this, we now know how to parse different servant types and type
+combinators. We can create a typeclass, define instances for all Servant
+types and type combinators, then use that to parse them.</p>
+<p>With this knowledge, we can implement a typeclass that parses a single
+endpoint, since an endpoint is made up of servant types and combinators.</p>
+<p>We match on the :&gt; combinator and other types, converting them to
+<code>Parameter-Detail</code> pairs and inserting them into the <code>Details OMap</code>. We then
+return a <code>Route-Detail</code> pair.</p>
 <hr />
 <p><em>Parsing each endpoint by pattern matching on :&gt;</em></p>
 <pre><code>class HasParsable api where
@@ -297,9 +367,18 @@ instance ( HasParsable a
                                                   $ empty
                                                   )
                                         ) d</code></pre>
-<p>We can convert types into their text form by using <code>typeRep</code> from <a href="http://hackage.haskell.org/package/base-4.14.0.0/docs/Data-Typeable.html"><span class="underline">Data.Typeable</span></a> and type-level strings into their string equivalent by using <code>symbolVal</code> from <a href="https://hackage.haskell.org/package/base-4.14.0.0/docs/GHC-TypeLits.html"><span class="underline">GHC.TypeLits</span></a>.</p>
-<p>Next, we have a typeclass that destructures the flattened API type. As mentioned earlier, the flattened API type is a type-level list of endpoints. The typeclass recurses through the list, converting each Endpoint type into a <code>Route-Details</code> pair.</p>
-<p>Since each endpoint type is an instance of the <code>HasParsable</code> typeclass, we can use the document function for the conversion. We then insert the pair into the rest of the <code>ApiDocs OMap</code>.</p>
+<p>We can convert types into their text form by using <code>typeRep</code> from
+<a href="http://hackage.haskell.org/package/base-4.14.0.0/docs/Data-Typeable.html"><u>Data.Typeable</u></a>
+and type-level strings into their string equivalent by using <code>symbolVal</code>
+from
+<a href="https://hackage.haskell.org/package/base-4.14.0.0/docs/GHC-TypeLits.html"><u>GHC.TypeLits</u></a>.</p>
+<p>Next, we have a typeclass that destructures the flattened API type. As
+mentioned earlier, the flattened API type is a type-level list of
+endpoints. The typeclass recurses through the list, converting each
+Endpoint type into a <code>Route-Details</code> pair.</p>
+<p>Since each endpoint type is an instance of the <code>HasParsable</code> typeclass, we
+can use the document function for the conversion. We then insert the
+pair into the rest of the <code>ApiDocs OMap</code>.</p>
 <hr />
 <p><em>Collating the ApiDocs by pattern matching on ':</em></p>
 <pre><code>class HasCollatable api where
@@ -313,7 +392,8 @@ instance HasCollatable '[] where
 <hr />
 <p><br></p>
 <h2 id="rendering-the-intermediate-structure">Rendering the intermediate structure</h2>
-<p>The ApiDocs structure can then be rendered into other formats using another typeclass.</p>
+<p>The ApiDocs structure can then be rendered into other formats using
+another typeclass.</p>
 <hr />
 <p><em>Renderable typeclass</em></p>
 <pre><code>class Renderable a where
@@ -326,7 +406,8 @@ instance Renderable PlainText
 ...</code></pre>
 <hr />
 <h2 id="usage">Usage</h2>
-<p>Now, to get the documentation we can parse the API and then render it to the desired format.</p>
+<p>Now, to get the documentation we can parse the API and then render it to
+the desired format.</p>
 <hr />
 <p><em>Writing the docs as PlainText to a file</em></p>
 <pre><code>type MyAPI = ...
@@ -342,24 +423,58 @@ apiDocs = render @PlainText (parse @MyAPI)</code></pre>
 <hr />
 <h2 id="reflections">Reflections</h2>
 <h3 id="what-can-be-improved">What can be improved?</h3>
-<p>Currently there are some <a href="https://github.com/Holmusk/servant-docs-simple/issues"><span class="underline">issues</span></a> opened in the repository.</p>
+<p>Currently there are some
+<a href="https://github.com/Holmusk/servant-docs-simple/issues"><u>issues</u></a>
+opened in the repository.</p>
 <p>The main ones which come to mind would be:</p>
 <ul>
-<li><p><a href="https://github.com/Holmusk/servant-docs-simple/issues/8"><span class="underline">Pretty printing some of the typeRep output</span></a></p></li>
-<li><p><a href="https://github.com/Holmusk/servant-docs-simple/issues/6"><span class="underline">Implementing support for all modifiers</span></a></p></li>
+<li><p><a href="https://github.com/Holmusk/servant-docs-simple/issues/8"><u>Pretty printing some of the typeRep output</u></a></p></li>
+<li><p><a href="https://github.com/Holmusk/servant-docs-simple/issues/6"><u>Implementing support for all modifiers</u></a></p></li>
 </ul>
 <h3 id="trade-offs">Trade offs</h3>
-<p>Documentation may not be sufficiently extensive, as the generated documentation lacks examples by default. These are up to the user to include.</p>
-<p>Servant-docs has a much more developed ecosystem. These can be seen through packages such as servant-pandoc which supports many more output formats than servant-docs-simple.</p>
+<p>Documentation may not be sufficiently extensive, as the generated
+documentation lacks examples by default. These are up to the user to
+include.</p>
+<p>Servant-docs has a much more developed ecosystem. These can be seen
+through packages such as servant-pandoc which supports many more output
+formats than servant-docs-simple.</p>
 <h3 id="pros">Pros</h3>
-<p>You get lightweight documentation for free! As long as you have an Api type, you can generate simple documentation in a variety of outputs.</p>
-<p>It is also easy to extend. We have included a bunch of <a href="https://github.com/Holmusk/servant-docs-simple#tutorials"><span class="underline">tutorial</span></a> scripts you can refer to. These include writing your own <a href="https://github.com/Holmusk/servant-docs-simple/blob/master/examples/render.hs"><span class="underline">Renderable instances for rendering custom output</span></a> and <a href="https://github.com/Holmusk/servant-docs-simple/blob/master/examples/custom.hs"><span class="underline">HasParsable instances to parse custom types</span></a>.</p>
+<p>You get lightweight documentation for free! As long as you have an Api
+type, you can generate simple documentation in a variety of outputs.</p>
+<p>It is also easy to extend. We have included a bunch of
+<a href="https://github.com/Holmusk/servant-docs-simple#tutorials"><u>tutorial</u></a>
+scripts you can refer to. These include writing your own <a href="https://github.com/Holmusk/servant-docs-simple/blob/master/examples/render.hs"><u>Renderable
+instances for rendering custom
+output</u></a>
+and <a href="https://github.com/Holmusk/servant-docs-simple/blob/master/examples/custom.hs"><u>HasParsable instances to parse custom
+types</u></a>.</p>
 <h2 id="other-thoughts">Other thoughts</h2>
-<p>Writing this library was very interesting, as it was the first time I tried type-level programming. It was a similar feeling as when I first learnt about Monoids, Functors and Monads.</p>
-<p>When I started working on this project I was worried but excited. After having heard interesting things about Servant, but never really understanding it, I could finally get some experience. Along the way I referenced <a href="https://docs.servant.dev/en/stable/"><strong><span class="underline">Servant's documentation</span></strong></a> and <a href="https://thinkingwithtypes.com/"><strong><span class="underline">Thinking with Types</span></strong></a> which have helped me immensely to understand type-level programming in Haskell.</p>
-<p>After working on this project, I understand compile-time safety a lot better . By encoding the API as a type, we can more safely reuse it in a variety of ways, such as documentation (as in this case), on the client-side and so on.</p>
-<p>I also learned about the nitty-gritty bits of packaging a module, like how to upload to Hackage, Stackage, configure the CI, setting up the project with <a href="https://github.com/kowainik/summoner"><span class="underline">summoner</span></a>, among many other things.</p>
-<p>For more details, you can reference the <a href="https://github.com/Holmusk/servant-docs-simple"><strong><span class="underline">README</span></strong></a> as well as the <a href="https://hackage.haskell.org/package/servant-docs-simple"><strong><span class="underline">Hackage</span></strong></a> docs. We also welcome PRs and Issues to improve the package! Thanks for reading :)</p>
+<p>Writing this library was very interesting, as it was the first time I
+tried type-level programming. It was a similar feeling as when I first
+learnt about Monoids, Functors and Monads.</p>
+<p>When I started working on this project I was worried but excited. After
+having heard interesting things about Servant, but never really
+understanding it, I could finally get some experience. Along the way I
+referenced <a href="https://docs.servant.dev/en/stable/"><strong><u>Servant's
+documentation</u></strong></a> and
+<a href="https://thinkingwithtypes.com/"><strong><u>Thinking with Types</u></strong></a>
+which have helped me immensely to understand type-level programming in
+Haskell.</p>
+<p>After working on this project, I understand compile-time safety a lot
+better . By encoding the API as a type, we can more safely reuse it in a
+variety of ways, such as documentation (as in this case), on the
+client-side and so on.</p>
+<p>I also learned about the nitty-gritty bits of packaging a module, like
+how to upload to Hackage, Stackage, configure the CI, setting up the
+project with
+<a href="https://github.com/kowainik/summoner"><u>summoner</u></a>, among
+many other things.</p>
+<p>For more details, you can reference the
+<a href="https://github.com/Holmusk/servant-docs-simple"><strong><u>README</u></strong></a>
+as well as the
+<a href="https://hackage.haskell.org/package/servant-docs-simple"><strong><u>Hackage</u></strong></a>
+docs. We also welcome PRs and Issues to improve the package! Thanks for
+reading :)</p>
           </div>
         </div>
       </div>

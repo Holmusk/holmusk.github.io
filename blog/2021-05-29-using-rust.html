@@ -11,6 +11,7 @@
   <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" crossorigin="anonymous">
   <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/syntax.css" />
   <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8=" crossorigin="anonymous">
   </script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" crossorigin="anonymous"></script>
@@ -73,8 +74,10 @@
 <li><a href="#lifecycle-of-an-image">Lifecycle of an image</a></li>
 <li><a href="#stack-decisions-rust-and-haskell">Stack decisions: Rust and Haskell</a></li>
 <li><a href="#introduction-and-pitfalls-of-the-existing-architecture">Introduction and pitfalls of the existing architecture</a></li>
-<li><a href="#the-new-architecture">The new architecture</a><ul>
-<li><a href="#rust-webserver-internals">Rust webserver internals</a><ul>
+<li><a href="#the-new-architecture">The new architecture</a>
+<ul>
+<li><a href="#rust-webserver-internals">Rust webserver internals</a>
+<ul>
 <li><a href="#types-of-channels-used">Types of channels used</a></li>
 </ul></li>
 </ul></li>
@@ -95,8 +98,11 @@
 <p>Haskell is used for the client facing API, and it’s used for other ad-hoc tasks such as reading/writing to a database among others.</p>
 <p>Rust is used for image preprocessing, model inference and sending the results back. Sending of results was done differently in the two approaches outlined below. Rust was chosen for its high efficiency, small executable footprint, and absence of a garbage collector. It also had strong type system, speed &amp; relatively actively maintained Tensorflow (client) library.</p>
 <h1 id="introduction-and-pitfalls-of-the-existing-architecture">Introduction and pitfalls of the existing architecture</h1>
-<p><img src="../images/blogposts/v2-arch-diagram.png" /> The internal organization of the rust service in this architecture is outlined above. There were 3 main parts, all running concurrently on 3 separate tokio<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> runtimes - namely polling SQS, preprocessing and running inference on the images, and cleanup tasks (like writing results to redis, notifying SQS that the image can now be taken off the queue, etc).</p>
-<p>The external processes related to this architecture are outlined below. <img src="../images/blogposts/v2-external-arch-diagram.png" /></p>
+<p><img src="../images/blogposts/v2-arch-diagram.png" />
+The internal organization of the rust service in this architecture is outlined above.
+There were 3 main parts, all running concurrently on 3 separate tokio<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> runtimes - namely polling SQS, preprocessing and running inference on the images, and cleanup tasks (like writing results to redis, notifying SQS that the image can now be taken off the queue, etc).</p>
+<p>The external processes related to this architecture are outlined below.
+<img src="../images/blogposts/v2-external-arch-diagram.png" /></p>
 <p>The main gripe we had was in the <code>S3</code> to <code>SQS</code><a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> upload event notification. In our benchmarks, it was <a href="https://github.com/Holmusk/aws_benchmarks/tree/master/s3_event_to_sqs">very slow</a>, and we aim for the service to have a very low latency, with the goal being that every image that comes into the system should be scored/rated in <strong>under 1 second</strong> . Because of the way the system was designed, this meant that we’d need a pretty big makeover on the rust side, and some tweaks on the haskell side if we were to get closer to meeting our performance goals. This is also mentioned in the <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/NotificationHowTo.html">AWS docs</a>, where they state that <code>Typically, event notifications are delivered in seconds but can sometimes take a minute or longer</code>.</p>
 <h1 id="the-new-architecture">The new architecture</h1>
 <p>As mentioned above, the main reason for redesigning the architecture was to avoid the <code>S3</code> to <code>SQS</code> upload event notification as low latency is of high priority in this project. In the process, we found out that we actually simplified it, by removing unnecessary moving parts.</p>
@@ -106,7 +112,8 @@
 <p>We have chosen to use <a href="https://github.com/seanmonstar/warp"><code>warp</code></a><a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a> for the web server implementation in Rust.</p>
 <p>We have 3 tokio runtimes running simultaneous and somewhat independently of one another. These tokio runtimes communicate with each other using messages that are passed between them using bounded <a href="https://doc.rust-lang.org/book/ch16-02-message-passing.html">channels</a>. The “messages” we pass are custom <a href="https://doc.rust-lang.org/book/ch05-01-defining-structs.html"><code>Structs</code></a> we define for communication.</p>
 <p>Finally, because each request handler needs a result for its own image, the handler initially creates a <a href="https://tokio-rs.github.io/tokio/doc/tokio/sync/oneshot/index.html">oneshot</a> for receiving it’s results and this is passed along as metadata for the image. Once the image is inferred in a batch, the data is sent back to the image’s corresponding request handler so the results can be returned.</p>
-<p>As mentioned, we have completely avoided the use of SQS in this architecture. The external architecture around the rust service now looks like this: <img src="../images/blogposts/v3-external-arch-diagram.png" /></p>
+<p>As mentioned, we have completely avoided the use of SQS in this architecture. The external architecture around the rust service now looks like this:
+<img src="../images/blogposts/v3-external-arch-diagram.png" /></p>
 <h3 id="types-of-channels-used">Types of channels used</h3>
 <p>We use a couple of different channels for communication with different parts within the rust service. Check out <a href="https://doc.rust-lang.org/book/ch16-02-message-passing.html">this chapter</a> from the rust book for some more context on how they work!</p>
 <ul>

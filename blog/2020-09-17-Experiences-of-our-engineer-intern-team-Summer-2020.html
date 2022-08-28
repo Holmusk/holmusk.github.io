@@ -11,6 +11,7 @@
   <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" crossorigin="anonymous">
   <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/syntax.css" />
   <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8=" crossorigin="anonymous">
   </script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" crossorigin="anonymous"></script>
@@ -71,37 +72,45 @@
         <div class="row">
           <div class="col-lg-10 col-md-12 mx-auto">
             <div class="toc"><ul>
-<li><a href="#the-project-we-worked-on"><strong>The Project we worked on</strong></a><ul>
-<li><a href="#project-architecture">Project Architecture</a><ul>
+<li><a href="#the-project-we-worked-on"><strong>The Project we worked on</strong></a>
+<ul>
+<li><a href="#project-architecture">Project Architecture</a>
+<ul>
 <li><a href="#frontend">Frontend</a></li>
 <li><a href="#backend">Backend</a></li>
 <li><a href="#database">Database</a></li>
 <li><a href="#on-the-simplicity-of-neo4j">On the simplicity of Neo4j</a></li>
 </ul></li>
-<li><a href="#functional-vs-imperative">Functional vs Imperative</a><ul>
+<li><a href="#functional-vs-imperative">Functional vs Imperative</a>
+<ul>
 <li><a href="#testing">Testing</a></li>
 <li><a href="#reusablenested-components">Reusable/Nested Components</a></li>
 </ul></li>
-<li><a href="#git-for-newbies">Git for newbies</a><ul>
+<li><a href="#git-for-newbies">Git for newbies</a>
+<ul>
 <li><a href="#git-rebase-101">Git rebase 101</a></li>
 <li><a href="#git-reflog">Git reflog</a></li>
 </ul></li>
 </ul></li>
-<li><a href="#daniel">Daniel</a><ul>
+<li><a href="#daniel">Daniel</a>
+<ul>
 <li><a href="#milestones-are-a-great-way-to-stay-motivated">Milestones are a great way to stay motivated</a></li>
 </ul></li>
-<li><a href="#leyli">Leyli</a><ul>
+<li><a href="#leyli">Leyli</a>
+<ul>
 <li><a href="#ask-google-or-ask-a-teammatejust-make-sure-you-ask">Ask Google or ask a teammate—just make sure you ask</a></li>
 <li><a href="#as-a-newbie-especially-step-0break-down-tasks-and-step-1understand-exactly-what-needs-to-be-done">As a newbie especially, step 0—break down tasks, and step 1—understand exactly what needs to be done</a></li>
 <li><a href="#console-and-documentation-are-your-friends-in-learning-a-language-from-scratch">Console and documentation are your friends in learning a language from scratch</a></li>
 <li><a href="#set-your-priorities-straight">Set your priorities straight</a></li>
 <li><a href="#code-quality">Code quality</a></li>
 </ul></li>
-<li><a href="#ivan">Ivan</a><ul>
+<li><a href="#ivan">Ivan</a>
+<ul>
 <li><a href="#great-autonomy">Great Autonomy!</a></li>
 <li><a href="#functional-beats-imperative">Functional beats imperative</a></li>
 </ul></li>
-<li><a href="#noel">Noel</a><ul>
+<li><a href="#noel">Noel</a>
+<ul>
 <li><a href="#what-should-your-priorities-be">What should your priorities be?</a></li>
 <li><a href="#mentoring-tips">Mentoring tips</a></li>
 <li><a href="#be-conservative-and-practical">Be conservative and practical</a></li>
@@ -137,7 +146,8 @@
 <p>In order to construct the network that we had in mind, the most prudent choice was to use a graph database (since <a href="https://en.wikipedia.org/wiki/Network_theory">networks can be represented as graphs</a>).</p>
 <p>We considered <a href="https://aws.amazon.com/neptune/">AWS Neptune</a> along with other alternatives, but in the end <a href="https://neo4j.com/">Neo4j</a> was decided on given its ease of use and developer friendliness.</p>
 <h3 id="on-the-simplicity-of-neo4j">On the simplicity of Neo4j</h3>
-<p>The queries in Neo4j pattern match against the actual database structure, which is helpful in gaining intuition in using them. The two most basic components are nodes and relationships. Using those components, we have the ability to model Holmusk’s network. The examples below can give you some insight about how it works.</p>
+<p>The queries in Neo4j pattern match against the actual database structure, which is helpful in gaining intuition in using them. The two most basic components are nodes and relationships.
+Using those components, we have the ability to model Holmusk’s network. The examples below can give you some insight about how it works.</p>
 <p><em>Creating nodes</em></p>
 <p><code>CREATE (person:PERSON {name: 'Noel'})</code></p>
 <p><em>Creating relationships</em></p>
@@ -158,80 +168,80 @@
 <p><em>Statelessness</em> means that components do not manipulate any state within, they only render state passed to them in their <em>props</em>.</p>
 <p><em>Statefulness</em> means that components store state within and manipulate / render this state.</p>
 <p>An example of a button in an stateful style is:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">const</span> Button <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></span>
-<span id="cb1-2"><a href="#cb1-2"></a>  <span class="kw">const</span> [name<span class="op">,</span>setName] <span class="op">=</span> <span class="at">useState</span>(<span class="st">'Ivan'</span>)</span>
-<span id="cb1-3"><a href="#cb1-3"></a></span>
-<span id="cb1-4"><a href="#cb1-4"></a>  <span class="kw">&lt;button</span> <span class="ot">onClick</span> <span class="op">=</span> <span class="va">{</span>()<span class="kw">=&gt;</span><span class="at">setName</span>(<span class="st">&quot;Tomatoes&quot;</span>)<span class="va">}</span><span class="er">)</span><span class="kw">&gt;</span></span>
-<span id="cb1-5"><a href="#cb1-5"></a>    Set Name</span>
-<span id="cb1-6"><a href="#cb1-6"></a>  <span class="kw">&lt;/button&gt;</span>	</span>
-<span id="cb1-7"><a href="#cb1-7"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> Button <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> [name<span class="op">,</span>setName] <span class="op">=</span> <span class="fu">useState</span>(<span class="st">'Ivan'</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&lt;button</span> <span class="ot">onClick</span> <span class="op">=</span> <span class="va">{</span>()<span class="kw">=&gt;</span><span class="fu">setName</span>(<span class="st">&quot;Tomatoes&quot;</span>)<span class="va">}</span><span class="er">)</span><span class="kw">&gt;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    Set Name</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&lt;/button&gt;</span>	</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>As a stateless component however, a button looks as follows:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">const</span> SET_USER_NAME <span class="op">=</span> <span class="st">'SET_USER_NAME'</span></span>
-<span id="cb2-2"><a href="#cb2-2"></a></span>
-<span id="cb2-3"><a href="#cb2-3"></a><span class="kw">const</span> INITIAL_STATE <span class="op">=</span> <span class="op">{</span></span>
-<span id="cb2-4"><a href="#cb2-4"></a>  <span class="dt">name</span><span class="op">:</span><span class="kw">null</span><span class="op">,</span></span>
-<span id="cb2-5"><a href="#cb2-5"></a>  <span class="dt">age</span><span class="op">:</span> <span class="kw">null</span><span class="op">,</span></span>
-<span id="cb2-6"><a href="#cb2-6"></a>  <span class="dt">occupation</span><span class="op">:</span> <span class="kw">null</span></span>
-<span id="cb2-7"><a href="#cb2-7"></a><span class="op">}</span></span>
-<span id="cb2-8"><a href="#cb2-8"></a></span>
-<span id="cb2-9"><a href="#cb2-9"></a><span class="kw">function</span> <span class="at">reducer</span>(state<span class="op">,</span> action) <span class="op">{</span></span>
-<span id="cb2-10"><a href="#cb2-10"></a>  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></span>
-<span id="cb2-11"><a href="#cb2-11"></a>    <span class="cf">case</span> <span class="dt">SET_USER_NAME</span><span class="op">:</span></span>
-<span id="cb2-12"><a href="#cb2-12"></a>      <span class="kw">const</span> <span class="op">{</span> name <span class="op">}</span> <span class="op">=</span> <span class="va">action</span>.<span class="at">payload</span></span>
-<span id="cb2-13"><a href="#cb2-13"></a>      <span class="cf">return</span> <span class="op">{</span>...<span class="at">state</span><span class="op">,</span>name<span class="op">}</span></span>
-<span id="cb2-14"><a href="#cb2-14"></a>    <span class="cf">default</span><span class="op">:</span></span>
-<span id="cb2-15"><a href="#cb2-15"></a>      <span class="cf">return</span> state</span>
-<span id="cb2-16"><a href="#cb2-16"></a>  <span class="op">}</span></span>
-<span id="cb2-17"><a href="#cb2-17"></a><span class="op">}</span></span>
-<span id="cb2-18"><a href="#cb2-18"></a></span>
-<span id="cb2-19"><a href="#cb2-19"></a><span class="kw">const</span> setUserName <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></span>
-<span id="cb2-20"><a href="#cb2-20"></a>  <span class="kw">const</span> [name<span class="op">,</span>dispatch] <span class="op">=</span> <span class="at">useReducer</span>(reducer<span class="op">,</span> INITIAL_STATE)</span>
-<span id="cb2-21"><a href="#cb2-21"></a></span>
-<span id="cb2-22"><a href="#cb2-22"></a>  <span class="cf">return</span>(</span>
-<span id="cb2-23"><a href="#cb2-23"></a>    <span class="kw">&lt;button</span> <span class="ot">onClick</span> <span class="op">=</span> <span class="va">{</span>()<span class="kw">=&gt;</span><span class="at">dispatch</span>(<span class="op">{</span><span class="dt">type</span><span class="op">:</span>SET_USER_NAME<span class="op">,</span><span class="dt">payload</span><span class="op">:{</span><span class="dt">name</span><span class="op">:</span><span class="st">&quot;Tomatoes&quot;</span><span class="op">}}</span>)<span class="op">&gt;</span></span>
-<span id="cb2-24"><a href="#cb2-24"></a>      Set Name</span>
-<span id="cb2-25"><a href="#cb2-25"></a>    &lt;/button<span class="op">&gt;</span></span>
-<span id="cb2-26"><a href="#cb2-26"></a>  )</span>
-<span id="cb2-27"><a href="#cb2-27"></a><span class="va">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> SET_USER_NAME <span class="op">=</span> <span class="st">'SET_USER_NAME'</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> INITIAL_STATE <span class="op">=</span> {</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">name</span><span class="op">:</span><span class="kw">null</span><span class="op">,</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">age</span><span class="op">:</span> <span class="kw">null</span><span class="op">,</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">occupation</span><span class="op">:</span> <span class="kw">null</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">reducer</span>(state<span class="op">,</span> action) {</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">switch</span> (action<span class="op">.</span><span class="at">type</span>) {</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">case</span> <span class="dt">SET_USER_NAME</span><span class="op">:</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> { name } <span class="op">=</span> action<span class="op">.</span><span class="at">payload</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> {<span class="op">...</span>state<span class="op">,</span>name}</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">default</span><span class="op">:</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> state</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> setUserName <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> [name<span class="op">,</span>dispatch] <span class="op">=</span> <span class="fu">useReducer</span>(reducer<span class="op">,</span> INITIAL_STATE)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span>(</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;button</span> <span class="ot">onClick</span> <span class="op">=</span> <span class="va">{</span>()<span class="kw">=&gt;</span><span class="fu">dispatch</span>({<span class="dt">type</span><span class="op">:</span>SET_USER_NAME<span class="op">,</span><span class="dt">payload</span><span class="op">:</span>{<span class="dt">name</span><span class="op">:</span><span class="st">&quot;Tomatoes&quot;</span>}})<span class="op">&gt;</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>      <span class="bu">Set</span> Name</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;/</span>button<span class="op">&gt;</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="va">}</span></span></code></pre></div>
 <p>As you can see, using a functional style introduces boilerplate code. In a project set-up, the reduced, action types and buttons are to be defined in three separate files: <code>reducer.js</code> , <code>actionTypes.js</code> and <code>button.js</code> unlike the imperative’s clean and succinct single file definition. For now, it may seem like an imperative style of programming wins out flat as it is cleaner and more succinct. However, in the long run, the advantages of an imperative style do not outweigh the benefits of a more functional style, especially when it comes to two main areas — Testing and Nested Components.</p>
 <h3 id="testing">Testing</h3>
 <p>When it comes to testing a functional component, all we need to do is to run a simple Jest test. This is because the functional style code separates out frontend code into <a href="https://sporto.github.io/elm-workshop/03-tea/01-intro.html">model, view, message and update logic</a>. The react component only renders the model we feed it. Hence we avoid storing internal state for each component and mutating it through side effects. In larger systems this keeps the functionality of the component clear.</p>
 <p>Say our application hinges on a series of buttons being clicked and we have defined a reducer that looks like this:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">function</span> <span class="at">reducer</span>(state<span class="op">,</span> action) <span class="op">{</span></span>
-<span id="cb3-2"><a href="#cb3-2"></a>  <span class="cf">switch</span> (<span class="va">action</span>.<span class="at">type</span>) <span class="op">{</span></span>
-<span id="cb3-3"><a href="#cb3-3"></a>    <span class="cf">case</span> <span class="dt">action1</span><span class="op">:</span></span>
-<span id="cb3-4"><a href="#cb3-4"></a>      <span class="co">// do something</span></span>
-<span id="cb3-5"><a href="#cb3-5"></a></span>
-<span id="cb3-6"><a href="#cb3-6"></a>    <span class="cf">case</span> <span class="dt">action2</span><span class="op">:</span></span>
-<span id="cb3-7"><a href="#cb3-7"></a>      <span class="co">// do something</span></span>
-<span id="cb3-8"><a href="#cb3-8"></a></span>
-<span id="cb3-9"><a href="#cb3-9"></a>    <span class="cf">case</span> <span class="dt">action3</span><span class="op">:</span></span>
-<span id="cb3-10"><a href="#cb3-10"></a>      <span class="co">// do something</span></span>
-<span id="cb3-11"><a href="#cb3-11"></a></span>
-<span id="cb3-12"><a href="#cb3-12"></a>    <span class="cf">default</span><span class="op">:</span></span>
-<span id="cb3-13"><a href="#cb3-13"></a>      <span class="cf">return</span> state</span>
-<span id="cb3-14"><a href="#cb3-14"></a>  <span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">reducer</span>(state<span class="op">,</span> action) {</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">switch</span> (action<span class="op">.</span><span class="at">type</span>) {</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">case</span> <span class="dt">action1</span><span class="op">:</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>      <span class="co">// do something</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">case</span> <span class="dt">action2</span><span class="op">:</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>      <span class="co">// do something</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">case</span> <span class="dt">action3</span><span class="op">:</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>      <span class="co">// do something</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">default</span><span class="op">:</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> state</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div>
 <p>All we need in order to test our application logic is to run the following in jest and we have effectively ensured our function works the way we want it to.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb4-1"><a href="#cb4-1"></a><span class="at">it</span>(<span class="st">'returns new state for &quot;update&quot; type'</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="op">{</span></span>
-<span id="cb4-2"><a href="#cb4-2"></a>  <span class="kw">const</span> initialState <span class="op">=</span> OurInitialState<span class="op">;</span></span>
-<span id="cb4-3"><a href="#cb4-3"></a>  <span class="kw">const</span> updateAction <span class="op">=</span> <span class="op">{</span><span class="dt">type</span><span class="op">:</span> <span class="st">'update'</span> <span class="op">};</span></span>
-<span id="cb4-4"><a href="#cb4-4"></a>  <span class="kw">const</span> updatedState <span class="op">=</span> <span class="at">reducer</span>(initialState<span class="op">,</span> <span class="op">{</span><span class="dt">type</span><span class="op">:</span>action1)<span class="op">;</span></span>
-<span id="cb4-5"><a href="#cb4-5"></a>  <span class="at">expect</span>(updatedState).<span class="at">toEqual</span>(desiredState)<span class="op">;</span></span>
-<span id="cb4-6"><a href="#cb4-6"></a><span class="op">}</span>)<span class="op">;</span></span>
-<span id="cb4-7"><a href="#cb4-7"></a></span>
-<span id="cb4-8"><a href="#cb4-8"></a><span class="at">it</span>(<span class="st">'returns new state for &quot;update&quot; type'</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="op">{</span></span>
-<span id="cb4-9"><a href="#cb4-9"></a>  <span class="kw">const</span> initialState <span class="op">=</span> OurInitialState<span class="op">;</span></span>
-<span id="cb4-10"><a href="#cb4-10"></a>  <span class="kw">const</span> updateAction <span class="op">=</span> <span class="op">{</span><span class="dt">type</span><span class="op">:</span> <span class="st">'update'</span> <span class="op">};</span></span>
-<span id="cb4-11"><a href="#cb4-11"></a>  <span class="kw">const</span> updatedState <span class="op">=</span> <span class="at">reducer</span>(initialState<span class="op">,</span> <span class="op">{</span><span class="dt">type</span><span class="op">:</span>action2)<span class="op">;</span></span>
-<span id="cb4-12"><a href="#cb4-12"></a>  <span class="at">expect</span>(updatedState).<span class="at">toEqual</span>(desiredState)<span class="op">;</span></span>
-<span id="cb4-13"><a href="#cb4-13"></a><span class="op">}</span>)<span class="op">;</span></span>
-<span id="cb4-14"><a href="#cb4-14"></a></span>
-<span id="cb4-15"><a href="#cb4-15"></a><span class="at">it</span>(<span class="st">'returns new state for &quot;update&quot; type'</span><span class="op">,</span> () <span class="kw">=&gt;</span> <span class="op">{</span></span>
-<span id="cb4-16"><a href="#cb4-16"></a>  <span class="kw">const</span> initialState <span class="op">=</span> OurInitialState<span class="op">;</span></span>
-<span id="cb4-17"><a href="#cb4-17"></a>  <span class="kw">const</span> updateAction <span class="op">=</span> <span class="op">{</span><span class="dt">type</span><span class="op">:</span> <span class="st">'update'</span> <span class="op">};</span></span>
-<span id="cb4-18"><a href="#cb4-18"></a>  <span class="kw">const</span> updatedState <span class="op">=</span> <span class="at">reducer</span>(initialState<span class="op">,</span> <span class="op">{</span><span class="dt">type</span><span class="op">:</span>action3)<span class="op">;</span></span>
-<span id="cb4-19"><a href="#cb4-19"></a>  <span class="at">expect</span>(updatedState).<span class="at">toEqual</span>(desiredState)<span class="op">;</span></span>
-<span id="cb4-20"><a href="#cb4-20"></a><span class="op">}</span>)<span class="op">;</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">it</span>(<span class="st">'returns new state for &quot;update&quot; type'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> initialState <span class="op">=</span> OurInitialState<span class="op">;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> updateAction <span class="op">=</span> {<span class="dt">type</span><span class="op">:</span> <span class="st">'update'</span> }<span class="op">;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> updatedState <span class="op">=</span> <span class="fu">reducer</span>(initialState<span class="op">,</span> {<span class="dt">type</span><span class="op">:</span>action1)<span class="op">;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expect</span>(updatedState)<span class="op">.</span><span class="fu">toEqual</span>(desiredState)<span class="op">;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="fu">it</span>(<span class="st">'returns new state for &quot;update&quot; type'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> initialState <span class="op">=</span> OurInitialState<span class="op">;</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> updateAction <span class="op">=</span> {<span class="dt">type</span><span class="op">:</span> <span class="st">'update'</span> }<span class="op">;</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> updatedState <span class="op">=</span> <span class="fu">reducer</span>(initialState<span class="op">,</span> {<span class="dt">type</span><span class="op">:</span>action2)<span class="op">;</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expect</span>(updatedState)<span class="op">.</span><span class="fu">toEqual</span>(desiredState)<span class="op">;</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="fu">it</span>(<span class="st">'returns new state for &quot;update&quot; type'</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> initialState <span class="op">=</span> OurInitialState<span class="op">;</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> updateAction <span class="op">=</span> {<span class="dt">type</span><span class="op">:</span> <span class="st">'update'</span> }<span class="op">;</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> updatedState <span class="op">=</span> <span class="fu">reducer</span>(initialState<span class="op">,</span> {<span class="dt">type</span><span class="op">:</span>action3)<span class="op">;</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expect</span>(updatedState)<span class="op">.</span><span class="fu">toEqual</span>(desiredState)<span class="op">;</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span></code></pre></div>
 <p>In an imperative style, this would require a number of steps:</p>
 <ol type="1">
 <li>Create a virtual DOM</li>
@@ -242,54 +252,54 @@
 <h3 id="reusablenested-components">Reusable/Nested Components</h3>
 <p>Another benefit of a functional style becomes clear in the aspect of nested and large reusable components.</p>
 <p>For example, suppose there are three different buttons we want to render on our page, in an imperative style:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">const</span> Button <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></span>
-<span id="cb5-2"><a href="#cb5-2"></a>  <span class="kw">const</span> [name<span class="op">,</span>setName] <span class="op">=</span> <span class="at">useState</span>(<span class="st">'Ivan'</span>)</span>
-<span id="cb5-3"><a href="#cb5-3"></a></span>
-<span id="cb5-4"><a href="#cb5-4"></a>  <span class="kw">const</span> function1 <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></span>
-<span id="cb5-5"><a href="#cb5-5"></a>    <span class="va">doSomething</span> ...</span>
-<span id="cb5-6"><a href="#cb5-6"></a>  <span class="op">}</span></span>
-<span id="cb5-7"><a href="#cb5-7"></a></span>
-<span id="cb5-8"><a href="#cb5-8"></a>  <span class="kw">const</span> function2 <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></span>
-<span id="cb5-9"><a href="#cb5-9"></a>    <span class="va">doSomething</span> ...</span>
-<span id="cb5-10"><a href="#cb5-10"></a>  <span class="op">}</span></span>
-<span id="cb5-11"><a href="#cb5-11"></a></span>
-<span id="cb5-12"><a href="#cb5-12"></a>  <span class="kw">const</span> function3 <span class="op">=</span> () <span class="kw">=&gt;</span> <span class="op">{</span></span>
-<span id="cb5-13"><a href="#cb5-13"></a>    doSomething</span>
-<span id="cb5-14"><a href="#cb5-14"></a>  <span class="op">}</span></span>
-<span id="cb5-15"><a href="#cb5-15"></a></span>
-<span id="cb5-16"><a href="#cb5-16"></a>  <span class="cf">return</span> (</span>
-<span id="cb5-17"><a href="#cb5-17"></a></span>
-<span id="cb5-18"><a href="#cb5-18"></a>    <span class="kw">&lt;button</span> <span class="ot">onClick</span> <span class="op">=</span> <span class="va">{</span>()<span class="kw">=&gt;</span><span class="at">function1</span>()<span class="va">}</span><span class="er">)</span><span class="kw">&gt;</span></span>
-<span id="cb5-19"><a href="#cb5-19"></a>      Set Name</span>
-<span id="cb5-20"><a href="#cb5-20"></a>    <span class="kw">&lt;/button&gt;</span>	</span>
-<span id="cb5-21"><a href="#cb5-21"></a></span>
-<span id="cb5-22"><a href="#cb5-22"></a>    <span class="kw">&lt;button</span> <span class="ot">onClick</span> <span class="op">=</span> <span class="va">{</span>()<span class="kw">=&gt;</span><span class="at">function2</span>()<span class="va">}</span><span class="er">)</span><span class="kw">&gt;</span></span>
-<span id="cb5-23"><a href="#cb5-23"></a>      Set Name</span>
-<span id="cb5-24"><a href="#cb5-24"></a>    <span class="kw">&lt;/button&gt;</span>	</span>
-<span id="cb5-25"><a href="#cb5-25"></a></span>
-<span id="cb5-26"><a href="#cb5-26"></a>    <span class="kw">&lt;button</span> <span class="ot">onClick</span> <span class="op">=</span> <span class="va">{</span>()<span class="kw">=&gt;</span><span class="at">function3</span>()<span class="va">}</span><span class="er">)</span><span class="kw">&gt;</span></span>
-<span id="cb5-27"><a href="#cb5-27"></a>      Set Name</span>
-<span id="cb5-28"><a href="#cb5-28"></a>    <span class="kw">&lt;/button&gt;</span>	</span>
-<span id="cb5-29"><a href="#cb5-29"></a>  )</span>
-<span id="cb5-30"><a href="#cb5-30"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> Button <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> [name<span class="op">,</span>setName] <span class="op">=</span> <span class="fu">useState</span>(<span class="st">'Ivan'</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> function1 <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    doSomething <span class="op">...</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> function2 <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    doSomething <span class="op">...</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> function3 <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    doSomething</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> (</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;button</span> <span class="ot">onClick</span> <span class="op">=</span> <span class="va">{</span>()<span class="kw">=&gt;</span><span class="fu">function1</span>()<span class="va">}</span><span class="er">)</span><span class="kw">&gt;</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>      Set Name</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;/button&gt;</span>	</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;button</span> <span class="ot">onClick</span> <span class="op">=</span> <span class="va">{</span>()<span class="kw">=&gt;</span><span class="fu">function2</span>()<span class="va">}</span><span class="er">)</span><span class="kw">&gt;</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>      Set Name</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;/button&gt;</span>	</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;button</span> <span class="ot">onClick</span> <span class="op">=</span> <span class="va">{</span>()<span class="kw">=&gt;</span><span class="fu">function3</span>()<span class="va">}</span><span class="er">)</span><span class="kw">&gt;</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>      Set Name</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;/button&gt;</span>	</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>Now, let’s examine our view logic for our functional component:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw">const</span> setUserName <span class="op">=</span> ()<span class="kw">=&gt;</span><span class="op">{</span></span>
-<span id="cb6-2"><a href="#cb6-2"></a>  <span class="kw">const</span> [name<span class="op">,</span>dispatch] <span class="op">=</span> <span class="at">useReducer</span>(reducer<span class="op">,</span> INITIAL_STATE)</span>
-<span id="cb6-3"><a href="#cb6-3"></a></span>
-<span id="cb6-4"><a href="#cb6-4"></a>  <span class="cf">return</span>(</span>
-<span id="cb6-5"><a href="#cb6-5"></a>    <span class="kw">&lt;button</span> <span class="ot">onClick</span> <span class="op">=</span> <span class="va">{</span>()<span class="kw">=&gt;</span><span class="at">dispatch</span>(<span class="op">{</span><span class="dt">type</span><span class="op">:</span>action1<span class="op">,</span><span class="dt">payload</span><span class="op">:{</span><span class="dt">name</span><span class="op">:</span><span class="st">&quot;Tomatoes&quot;</span><span class="op">}}</span>)<span class="op">&gt;</span></span>
-<span id="cb6-6"><a href="#cb6-6"></a>      Set Name</span>
-<span id="cb6-7"><a href="#cb6-7"></a>    &lt;/button<span class="op">&gt;</span></span>
-<span id="cb6-8"><a href="#cb6-8"></a></span>
-<span id="cb6-9"><a href="#cb6-9"></a>    <span class="kw">&lt;button</span> <span class="ot">onClick</span> <span class="op">=</span> <span class="va">{</span>()<span class="kw">=&gt;</span><span class="at">dispatch</span>(<span class="op">{</span><span class="dt">type</span><span class="op">:</span>action2<span class="op">,</span><span class="dt">payload</span><span class="op">:{</span><span class="dt">name</span><span class="op">:</span><span class="st">&quot;Tomatoes&quot;</span><span class="op">}}</span>)<span class="op">&gt;</span></span>
-<span id="cb6-10"><a href="#cb6-10"></a>      Set Name</span>
-<span id="cb6-11"><a href="#cb6-11"></a>    &lt;/button<span class="op">&gt;</span></span>
-<span id="cb6-12"><a href="#cb6-12"></a></span>
-<span id="cb6-13"><a href="#cb6-13"></a>    <span class="kw">&lt;button</span> <span class="ot">onClick</span> <span class="op">=</span> <span class="va">{</span>()<span class="kw">=&gt;</span><span class="at">dispatch</span>(<span class="op">{</span><span class="dt">type</span><span class="op">:</span>action3<span class="op">,</span><span class="dt">payload</span><span class="op">:{</span><span class="dt">name</span><span class="op">:</span><span class="st">&quot;Tomatoes&quot;</span><span class="op">}}</span>)<span class="op">&gt;</span></span>
-<span id="cb6-14"><a href="#cb6-14"></a>      Set Name</span>
-<span id="cb6-15"><a href="#cb6-15"></a>    &lt;/button<span class="op">&gt;</span></span>
-<span id="cb6-16"><a href="#cb6-16"></a>  )</span>
-<span id="cb6-17"><a href="#cb6-17"></a><span class="va">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> setUserName <span class="op">=</span> ()<span class="kw">=&gt;</span>{</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> [name<span class="op">,</span>dispatch] <span class="op">=</span> <span class="fu">useReducer</span>(reducer<span class="op">,</span> INITIAL_STATE)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span>(</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;button</span> <span class="ot">onClick</span> <span class="op">=</span> <span class="va">{</span>()<span class="kw">=&gt;</span><span class="fu">dispatch</span>({<span class="dt">type</span><span class="op">:</span>action1<span class="op">,</span><span class="dt">payload</span><span class="op">:</span>{<span class="dt">name</span><span class="op">:</span><span class="st">&quot;Tomatoes&quot;</span>}})<span class="op">&gt;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>      <span class="bu">Set</span> Name</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;/</span>button<span class="op">&gt;</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;button</span> <span class="ot">onClick</span> <span class="op">=</span> <span class="va">{</span>()<span class="kw">=&gt;</span><span class="fu">dispatch</span>({<span class="dt">type</span><span class="op">:</span>action2<span class="op">,</span><span class="dt">payload</span><span class="op">:</span>{<span class="dt">name</span><span class="op">:</span><span class="st">&quot;Tomatoes&quot;</span>}})<span class="op">&gt;</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>      <span class="bu">Set</span> Name</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;/</span>button<span class="op">&gt;</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;button</span> <span class="ot">onClick</span> <span class="op">=</span> <span class="va">{</span>()<span class="kw">=&gt;</span><span class="fu">dispatch</span>({<span class="dt">type</span><span class="op">:</span>action3<span class="op">,</span><span class="dt">payload</span><span class="op">:</span>{<span class="dt">name</span><span class="op">:</span><span class="st">&quot;Tomatoes&quot;</span>}})<span class="op">&gt;</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>      <span class="bu">Set</span> Name</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;/</span>button<span class="op">&gt;</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="va">}</span></span></code></pre></div>
 <p>The latter is significantly easier to scale. All that’s needed to add an additional button is</p>
 <ol type="1">
 <li>Add a new action type</li>
@@ -312,23 +322,23 @@
 <h2 id="git-for-newbies">Git for newbies</h2>
 <h3 id="git-rebase-101">Git rebase 101</h3>
 <p>Rebasing is used when the time comes to merge <em><code>branch X</code></em> into the <em><code>master branch</code>.</em></p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1"></a><span class="ex">A</span> -<span class="op">&gt;</span> B <span class="co"># Our master branch has commits A and B</span></span>
-<span id="cb7-2"><a href="#cb7-2"></a><span class="ex">A</span> -<span class="op">&gt;</span> B -<span class="op">&gt;</span> C -<span class="op">&gt;</span> D <span class="co"># Our branch X has commits C and D on top of those from master</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">A</span> <span class="at">-</span><span class="op">&gt;</span> B <span class="co"># Our master branch has commits A and B</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">A</span> <span class="at">-</span><span class="op">&gt;</span> B <span class="at">-</span><span class="op">&gt;</span> C <span class="at">-</span><span class="op">&gt;</span> D <span class="co"># Our branch X has commits C and D on top of those from master</span></span></code></pre></div>
 <p>Suppose we have a third branch, <code>Y</code> that gets merged into <code>master</code> first.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1"></a><span class="ex">A</span> -<span class="op">&gt;</span> B -<span class="op">&gt;</span> E <span class="co"># Branch Y added commit E after being merged</span></span>
-<span id="cb8-2"><a href="#cb8-2"></a><span class="ex">A</span> -<span class="op">&gt;</span> B -<span class="op">&gt;</span> C -<span class="op">&gt;</span> D <span class="co"># Now branch X differs from master, it does not have commit E!</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">A</span> <span class="at">-</span><span class="op">&gt;</span> B <span class="at">-</span><span class="op">&gt;</span> E <span class="co"># Branch Y added commit E after being merged</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">A</span> <span class="at">-</span><span class="op">&gt;</span> B <span class="at">-</span><span class="op">&gt;</span> C <span class="at">-</span><span class="op">&gt;</span> D <span class="co"># Now branch X differs from master, it does not have commit E!</span></span></code></pre></div>
 <p>Running a <code>rebase</code> of <code>branch X</code> against <code>master</code> stacks the differing commits on top of master:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1"></a><span class="ex">A</span> -<span class="op">&gt;</span> B -<span class="op">&gt;</span> E -<span class="op">&gt;</span> C<span class="st">' -&gt; D'</span> <span class="co"># Commits C and D are now stacked on top of E.</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">A</span> <span class="at">-</span><span class="op">&gt;</span> B <span class="at">-</span><span class="op">&gt;</span> E <span class="at">-</span><span class="op">&gt;</span> C<span class="st">' -&gt; D'</span> <span class="co"># Commits C and D are now stacked on top of E.</span></span></code></pre></div>
 <p>Note that we mark the commits <code>C</code> and <code>D</code> with apostrophes. This is because they are different commits now, as we <em>rewrite</em> their commit history to consider the changes from <code>E</code> as well.</p>
 <p>The perk of rebasing is the linear history, which makes it easy to interpret the changes to the project.</p>
 <p>There are drawbacks however to this approach. Taking branch X as an example, we actually change commits <code>C</code> and <code>D</code> to <code>C'</code> and <code>D'</code>. This means that we <em>manually rewrite</em> our commit history. This can be dangerous when applied to commits with a lot of merge conflicts, since we can mutate important parts of commits <code>C</code> and <code>D</code>. With merge however, we can always reverse the changes by reversing the merge commit.</p>
 <p>To balance this out, we kept our commits small and ensured work was distributed with little overlap. This resulted in fewer <em>merge conflicts</em> and at the same time permitted us to keep a linear commit history.</p>
 <h3 id="git-reflog">Git reflog</h3>
 <p>Now as an example, say you have been working on a local branch that hasn’t been pushed out yet, and before pushing to origin, you rebase and accidentally delete all code written locally. What can you do? Luckily, <em>git reflog</em> allows to revert changes even after rebasing.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb10-1"><a href="#cb10-1"></a>daniel@daniel<span class="op">-</span>VirtualBox<span class="op">:~</span><span class="ss">/projects/HolmuskDB/backend$ git reflog</span></span>
-<span id="cb10-2"><a href="#cb10-2"></a><span class="ss">c986303 HEAD@</span><span class="sc">{15}</span><span class="ss">: pull --rebase origin master: checkout c986303b53fbee559d94a3f9a663fe74eafc120f</span></span>
-<span id="cb10-3"><a href="#cb10-3"></a><span class="ss">dabeb66 HEAD@</span><span class="sc">{16}</span><span class="ss">: commit: Tests, added index initialization via npm script</span></span>
-<span id="cb10-4"><a href="#cb10-4"></a><span class="ss">0c06c73 HEAD@</span><span class="sc">{17}</span><span class="ss">: commit </span><span class="sc">(</span><span class="ss">amend</span><span class="sc">)</span><span class="ss">: Added FuzzySearch </span><span class="sc">(</span><span class="ss">#31</span><span class="sc">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>daniel@daniel<span class="op">-</span>VirtualBox<span class="op">:~</span><span class="ss">/projects/HolmuskDB/backend$ git reflog</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ss">c986303 HEAD@</span><span class="sc">{15}</span><span class="ss">: pull --rebase origin master: checkout c986303b53fbee559d94a3f9a663fe74eafc120f</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="ss">dabeb66 HEAD@</span><span class="sc">{16}</span><span class="ss">: commit: Tests, added index initialization via npm script</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="ss">0c06c73 HEAD@</span><span class="sc">{17}</span><span class="ss">: commit </span><span class="sc">(</span><span class="ss">amend</span><span class="sc">)</span><span class="ss">: Added FuzzySearch </span><span class="sc">(</span><span class="ss">#31</span><span class="sc">)</span></span></code></pre></div>
 <p><em>Git reflog</em> lists recently-performed actions, letting you see changes and move back and forth between them. At the line with HEAD@{15} you can see that the current branch has been rebased, if you wanted to revert to before the rebase, you could do <code>git checkout</code> to HEAD@{17} and move to a version of the codebase prior to the rebase. This tool saves <strong>a lot</strong> of time when accidents happen.</p>
 <hr />
 <p>We have seen the importance of logging changes in a branch, which hint at the importance of logging in general. It is always useful to be able to go back and see what changes have been made. Daniel reflects on how he came to the conclusion while working on the backend:</p>

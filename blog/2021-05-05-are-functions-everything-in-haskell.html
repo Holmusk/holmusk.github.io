@@ -11,6 +11,7 @@
   <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" crossorigin="anonymous">
   <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/syntax.css" />
   <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8=" crossorigin="anonymous">
   </script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" crossorigin="anonymous"></script>
@@ -73,35 +74,87 @@
 <li><a href="#references">References</a></li>
 </ul></div>
             <h1 id="learning-haskell">Learning Haskell</h1>
-<p>When I first started picking up Haskell, there was an overwhelming emphasis on treating functions as “first-class citizens”. As I peeled away the layers of abstraction and understood what I am actually learning, I came to realise that having functions as king isn’t necessarily the defining characteristic of Haskell. You see, functions are also accorded “first-class citizens” status in other languages like Java or JavaScript. You can pass them around as arguments, return them from functions and do almost everything you can with them as if they were primitives like booleans or numbers. So if functions aren’t what makes Haskell unique, what makes a functional programming language like Haskell special compared to other languages?</p>
-<p>I think my answer is monads. Monads are basically contexts that wrap around a value and give meaning - whether a value exists for instance - to the numbers or strings that are encapsulated within them. They affect the values you get when you operate on them (depending on what the context is) and are stackable. That means if you have one monad called <em>Maybe</em> which contains information on whether the value underneath exists, you can stack another monad called <em>IO</em> on top of it that asserts that you are performing I/O operations on the value underneath.</p>
+<p>When I first started picking up Haskell, there was an overwhelming
+emphasis on treating functions as “first-class citizens”. As I peeled
+away the layers of abstraction and understood what I am actually
+learning, I came to realise that having functions as king isn’t
+necessarily the defining characteristic of Haskell. You see, functions
+are also accorded “first-class citizens” status in other languages like
+Java or JavaScript. You can pass them around as arguments, return them
+from functions and do almost everything you can with them as if they
+were primitives like booleans or numbers. So if functions aren’t what
+makes Haskell unique, what makes a functional programming language like
+Haskell special compared to other languages?</p>
+<p>I think my answer is monads. Monads are basically contexts that wrap
+around a value and give meaning - whether a value exists for instance -
+to the numbers or strings that are encapsulated within them. They affect
+the values you get when you operate on them (depending on what the
+context is) and are stackable. That means if you have one monad called
+<em>Maybe</em> which contains information on whether the value underneath
+exists, you can stack another monad called <em>IO</em> on top of it that
+asserts that you are performing I/O operations on the value underneath.</p>
 <figure>
-<img src="../images/blogposts/lego-piece.jpg" alt /><figcaption>lego-piece</figcaption>
+<img src="../images/blogposts/lego-piece.jpg" alt="lego-piece" /><figcaption aria-hidden="true">lego-piece</figcaption>
 </figure>
 <p><em>Figure 1: One single monad</em></p>
 <figure>
-<img src="../images/blogposts/lego-stack.jpg" alt /><figcaption>lego-stack</figcaption>
+<img src="../images/blogposts/lego-stack.jpg" alt="lego-stack" /><figcaption aria-hidden="true">lego-stack</figcaption>
 </figure>
 <p><em>Figure 2: Monads in a conventional Haskell project</em></p>
-<p>This means that it is easy for a person coming from an imperative background to get lost amid the multiple monads you are operating under. Each time you need a new functionality/context, stack another monad on top. In a way, there are n-dimensions going on at any point in time (corresponding to the n monads stacked together)<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. Contrast this to programming in JavaScript, where all the information you need are either laid out in a 1-dimensional object consisting of key-value pairs OR you have to do a manual check for whether a value is <em>undefined</em> instead of wrapping it in a <em>Maybe</em> container. This means navigating a Haskell codebase requires more vertical traversals – you move up/down from one monad to another – while navigating a JavaScript codebase involves more horizontal traversals – you move from one component of the codebase to another – and that is a change in approach that stumped me initially.</p>
-<p>The reason why I am emphasising monads is because MOST MEANINGFUL THINGS you want to do in Haskell involves monads but I think they are not emphasised enough in introductory courses and students like myself will not pay extra attention to them because they sound so strange. But monads are the core of functional programming!</p>
-<p>Another thing that makes Haskell special is the soundness of its type checks. Wait, you go. Don’t all strongly-typed languages enforce types by definition? Well, not exactly. Most people who start learning Haskell usually have some experience with strongly-typed languages like Java. But because of the need for backward-compatibility, generic types – basically types that can change depending on the use-case – are “erased” during compilation. That means that you can assign wrongly-typed variables on purpose and the Java compiler will not catch it until the variable hits some function expecting something else during runtime and explodes! <a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1"></a><span class="dt">static</span> <span class="bu">String</span> <span class="fu">firstOfFirst</span>(<span class="bu">List</span>&lt;<span class="bu">String</span>&gt;<span class="kw">... </span>strings) {</span>
-<span id="cb1-2"><a href="#cb1-2"></a>    <span class="bu">List</span>&lt;<span class="bu">Integer</span>&gt; ints = <span class="bu">Collections</span>.<span class="fu">singletonList</span>(<span class="dv">42</span>);</span>
-<span id="cb1-3"><a href="#cb1-3"></a>    <span class="bu">Object</span>[] objects = strings;</span>
-<span id="cb1-4"><a href="#cb1-4"></a>    objects[<span class="dv">0</span>] = ints; <span class="co">// Heap pollution</span></span>
-<span id="cb1-5"><a href="#cb1-5"></a></span>
-<span id="cb1-6"><a href="#cb1-6"></a>    <span class="kw">return</span> strings[<span class="dv">0</span>].<span class="fu">get</span>(<span class="dv">0</span>); <span class="co">// ClassCastException</span></span>
-<span id="cb1-7"><a href="#cb1-7"></a>}</span></code></pre></div>
+<p>This means that it is easy for a person coming from an imperative
+background to get lost amid the multiple monads you are operating under.
+Each time you need a new functionality/context, stack another monad on
+top. In a way, there are n-dimensions going on at any point in time
+(corresponding to the n monads stacked together)<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. Contrast this to
+programming in JavaScript, where all the information you need are either
+laid out in a 1-dimensional object consisting of key-value pairs OR you
+have to do a manual check for whether a value is <em>undefined</em> instead of
+wrapping it in a <em>Maybe</em> container. This means navigating a Haskell
+codebase requires more vertical traversals – you move up/down from one
+monad to another – while navigating a JavaScript codebase involves more
+horizontal traversals – you move from one component of the codebase to
+another – and that is a change in approach that stumped me initially.</p>
+<p>The reason why I am emphasising monads is because MOST MEANINGFUL THINGS
+you want to do in Haskell involves monads but I think they are not
+emphasised enough in introductory courses and students like myself will
+not pay extra attention to them because they sound so strange. But
+monads are the core of functional programming!</p>
+<p>Another thing that makes Haskell special is the soundness of its type
+checks. Wait, you go. Don’t all strongly-typed languages enforce types
+by definition? Well, not exactly. Most people who start learning Haskell
+usually have some experience with strongly-typed languages like Java.
+But because of the need for backward-compatibility, generic types –
+basically types that can change depending on the use-case – are
+“erased” during compilation. That means that you can assign
+wrongly-typed variables on purpose and the Java compiler will not catch
+it until the variable hits some function expecting something else during
+runtime and explodes! <a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="bu">String</span> <span class="fu">firstOfFirst</span><span class="op">(</span><span class="bu">List</span><span class="op">&lt;</span><span class="bu">String</span><span class="op">&gt;</span><span class="kw">...</span> strings<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">List</span><span class="op">&lt;</span><span class="bu">Integer</span><span class="op">&gt;</span> ints <span class="op">=</span> <span class="bu">Collections</span><span class="op">.</span><span class="fu">singletonList</span><span class="op">(</span><span class="dv">42</span><span class="op">);</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">Object</span><span class="op">[]</span> objects <span class="op">=</span> strings<span class="op">;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    objects<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> ints<span class="op">;</span> <span class="co">// Heap pollution</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> strings<span class="op">[</span><span class="dv">0</span><span class="op">].</span><span class="fu">get</span><span class="op">(</span><span class="dv">0</span><span class="op">);</span> <span class="co">// ClassCastException</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p><em>Figure 3: Example of ClassCastException (explosion) in Java</em></p>
-<p>Haskell is able to avoid this by staying true to the meaning of types and not budging on type checks. This means a <strong><em>String is a String</em></strong>. It is not “similar” to another type like <em>Text</em> or a subclass because Haskell’s type system doesn’t support subtyping!</p>
-<p>Once you understand everything is based on monads and the types of the monads mean only ONE thing, I think you are well on your way to dissecting a full-fledged Haskell codebase. Just keep in mind: whenever you are frustrated at trying to figure out what the type is, take a deep breath and hark back to the days when you received a value of <em>undefined</em> in Javascript.</p>
+<p>Haskell is able to avoid this by staying true to the meaning of types
+and not budging on type checks. This means a <strong><em>String is a String</em></strong>. It is not “similar” to another type like <em>Text</em>
+or a subclass because Haskell’s type system doesn’t support subtyping!</p>
+<p>Once you understand everything is based on monads and the types of the
+monads mean only ONE thing, I think you are well on your way to
+dissecting a full-fledged Haskell codebase. Just keep in mind: whenever
+you are frustrated at trying to figure out what the type is, take a deep
+breath and hark back to the days when you received a value of
+<em>undefined</em> in Javascript.</p>
 <h1 id="references">References</h1>
 <pre><code>https://docs.oracle.com/javase/tutorial/java/generics/nonReifiableVarargsType.html</code></pre>
 <section class="footnotes" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1" role="doc-endnote"><p>This may sound like Haskell is more complicated than other languages for the sake of complexity but that’s not true. Rather, it is just a different way of using structures to do stuff and that may be unfamiliar to most of us that start off with Java or JavaScript.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn1" role="doc-endnote"><p>This may sound like Haskell is more complicated than other
+languages for the sake of complexity but that’s not true. Rather, it
+is just a different way of using structures to do stuff and that may
+be unfamiliar to most of us that start off with Java or JavaScript.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn2" role="doc-endnote"><p>Of course, it is a little bit more complicated than that.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
