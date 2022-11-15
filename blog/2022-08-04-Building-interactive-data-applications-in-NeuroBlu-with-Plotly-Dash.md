@@ -86,4 +86,3 @@ Under the “Compare Drugs” tab, the user can select a database, a category ma
 1. Explore the [Dashboard Engine](https://plotly.com/dash/dashboard-engine/) released in December 2021
 2. Continue leveraging the multi-page applications that we are developing
 3. Test database connectors to accelerate computational speed
-4. Look at open-source integration with Haskell and Elm frameworks
